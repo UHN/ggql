@@ -2,7 +2,7 @@
 
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
-[![License][License-Image]][License-Url] [![ReportCard][ReportCard-Image]][ReporCard-URL]
+[![License][License-Image]][License-Url] [![Go Report Card](https://goreportcard.com/badge/github.com/uhn/ggql)](https://goreportcard.com/report/github.com/uhn/ggql)
 ## Features
 
  - Simple binding of GraphQL schema elements to golang types and functions.
@@ -95,3 +95,8 @@ to
  - [Overview](overview.md) of the package and how to use it.
  - [FAQ](faq.md)
  - [Go Docs](https://uhn.github.io/ggql)
+
+
+[License-Url]: https://www.apache.org/licenses/LICENSE-2.0
+[License-Image]: https://img.shields.io/badge/License-Apache2-blue.svg
+[![Go Report Card](https://goreportcard.com/badge/github.com/uhn/ggql)](https://goreportcard.com/report/github.com/uhn/ggql)
