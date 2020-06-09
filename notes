@@ -1,0 +1,13 @@
+;; -*- mode: outline; outline-regexp: " *[-\+]"; indent-tabs-mode: nil; fill-column: 120 -*-
+
+
+-----------
+To generate the go docs start up the server
+
+ godoc -http :8888
+
+Then get the ggql page
+
+ wget -O docs/index.html http://localhost:8888/pkg/github.com/uhn/ggql/pkg/ggql
+
+replace /lib/godoc/ with lib/godoc in the file

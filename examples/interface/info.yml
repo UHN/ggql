@@ -1,0 +1,9 @@
+name: ggql-i
+website: https://github.com/uhn/ggql
+version: "1.0.0"
+language: "go"
+language-version: "1.14"
+bench-adjust: 0.5
+experimental: false
+post-format: graphql
+code: main.go
