@@ -1,6 +1,6 @@
 # GGql
 
-![](misc/ggql.svg)
+[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] [![Build][Build-Status-Image]][Build-Status-Url] [![Release][Release-Image]][Release-Url] [![Coverage][Coverage-Image]][Coverage-Url]
 
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
