@@ -2,8 +2,7 @@
 
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
-[![License][License-Image]][License-Url] [![ReportCard][ReportCard-Image]][ReportCard-U
-rl]
+[![License][License-Image]][License-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url]
 ## Features
 
  - Simple binding of GraphQL schema elements to golang types and functions.
