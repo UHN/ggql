@@ -1,10 +1,8 @@
 # GGql
 
-[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] [![Build][Build-Status-Image]][Build-Status-Url] [![Release][Release-Image]][Release-Url] [![Coverage][Coverage-Image]][Coverage-Url]
-
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
-
+[![License][License-Image]][License-Url] [![ReportCard][ReportCard-Image]][ReporCard-URL]
 ## Features
 
  - Simple binding of GraphQL schema elements to golang types and functions.
