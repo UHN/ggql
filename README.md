@@ -1,8 +1,9 @@
-# GGql
+# GGql ![](misc/ggql.svg)
 
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
-[![License][License-Image]][License-Url] [![Go Report Card](https://goreportcard.com/badge/github.com/uhn/ggql)](https://goreportcard.com/report/github.com/uhn/ggql)
+[![License][License-Image]][License-Url] [![ReportCard][ReportCard-Image]][ReportCard-U
+rl]
 ## Features
 
  - Simple binding of GraphQL schema elements to golang types and functions.
@@ -99,4 +100,5 @@ to
 
 [License-Url]: https://www.apache.org/licenses/LICENSE-2.0
 [License-Image]: https://img.shields.io/badge/License-Apache2-blue.svg
-[![Go Report Card](https://goreportcard.com/badge/github.com/uhn/ggql)](https://goreportcard.com/report/github.com/uhn/ggql)
+[ReportCard-Url]: https://goreportcard.com/report/github.com/uhn/ggql
+[ReportCard-Image]: https://goreportcard.com/badge/github.com/uhn/ggql
