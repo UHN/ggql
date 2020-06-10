@@ -2,7 +2,7 @@
 
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
-[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]  [![ReportCard][ReportCard-Image]][ReportCard-Url]  [![Coverage][Coverage-Image]][Coverage-Url] 
+[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]  [![ReportCard][ReportCard-Image]][ReportCard-Url]  [![Coverage][Coverage-Image]][Coverage-Url]
 ## Features
 
  - Simple binding of GraphQL schema elements to golang types and functions.
@@ -50,17 +50,9 @@ framework is using reflection. For a more comprehensive comparison go
 to
 [graphql-benchmarks](https://github.com/the-benchmarker/graphql-benchmarks).
 
-### Summary
-
-| Rate                | Latency             | Verbosity       |
-| ------------------- | ------------------- | --------------- |
-| ggql-i (go)         | ggql-i (go)         | ggql (go)       |
-| ggql (go)           | ggql (go)           | ggql-i (go)     |
-| graphql-go (go)     | graphql-go (go)     | graphql-go (go) |
-
 #### Parameters
-- Last updated: 2019-11-18
-- OS: Linux (version: 5.3.10-050310-generic, arch: x86_64)
+- Last updated: 2020-06-10
+- OS: Linux (version: 5.7.1-050701-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
 - Duration: 20 seconds
@@ -69,26 +61,27 @@ to
   - Latency is in milliseconds.
   - Verbosity is the number of non-blank lines of code excluding comments.
 
-### Rates
-| Language  | Framework          |       Rate | Latency | Verbosity | Throughput |
-|:----------|:-------------------|-----------:|--------:|----------:|-----------:|
-| go (1.13) | ggql-i (0.9.9)     | **180487** |   0.067 |       253 |      26.10 |
-| go (1.13) | ggql (0.9.9)       | **174742** |     067 |       176 |      25.25 |
-| go (1.13) | graphql-go (0.7.8) |  **29614** |   0.086 |       378 |       4.28 |
+### Rate
+| Language | Framework(version) | Rate | Median Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |
+| -------- | ------------------ | ----:| ------------:| ---------------:| ------:| ------:| -------:| ---------:|
+| go (1.14) | [ggql-i](https://github.com/uhn/ggql) (1.0.0) | **205058** | 0.062 | 0.060 | 0.068 | 0.088 | 0.02 | 253 |
+| go (1.14) | [ggql](https://github.com/uhn/ggql) (1.0.0) | **201986** | 0.062 | 0.057 | 0.066 | 0.073 | 0.02 | 176 |
+| go (1.14) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.9) | **32843** | 0.078 | 0.075 | 0.086 | 0.102 | 0.03 | 378 |
 
 ### Latency
-| Language  | Framework          |   Rate |   Latency | Verbosity | Average | 90th % | 99th % | Std Dev |
-|:----------|:-------------------|-------:|----------:|----------:|--------:|-------:|-------:|--------:|
-| go (1.13) | ggql-i (0.9.9)     | 180487 | **0.067** |       253 |   0.065 |  0.074 |  0.090 |    0.02 |
-| go (1.13) | ggql (0.9.9)       | 174742 | **0.067** |       176 |   0.064 |  0.072 |  0.077 |    0.02 |
-| go (1.13) | graphql-go (0.7.8) |  29614 | **0.086** |       378 |   0.085 |  0.091 |  0.099 |    0.02 |
+| Language | Framework(version) | Rate | Median Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |
+| -------- | ------------------ | ----:| ------------:| ---------------:| ------:| ------:| -------:| ---------:|
+| go (1.14) | [ggql-i](https://github.com/uhn/ggql) (1.0.0) | 205058 | **0.062** | 0.060 | 0.068 | 0.088 | 0.02 | 253 |
+| go (1.14) | [ggql](https://github.com/uhn/ggql) (1.0.0) | 201986 | **0.062** | 0.057 | 0.066 | 0.073 | 0.02 | 176 |
+| go (1.14) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.9) | 32843 | **0.078** | 0.075 | 0.086 | 0.102 | 0.03 | 378 |
 
 ### Verbosity
-| Language  | Framework          |   Rate | Latency | Verbosity |
-|:----------|:-------------------|-------:|--------:|----------:|
-| go (1.13) | ggql (0.9.9)       | 174742 |   0.067 |   **176** |
-| go (1.13) | ggql-i (0.9.9)     | 180487 |   0.067 |   **253** |
-| go (1.13) | graphql-go (0.7.8) |  29614 |   0.086 |   **378** |
+| Language | Framework(version) | Rate | Median Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |
+| -------- | ------------------ | ----:| ------------:| ---------------:| ------:| ------:| -------:| ---------:|
+| go (1.14) | [ggql](https://github.com/uhn/ggql) (1.0.0) | 201986 | 0.062 | 0.057 | 0.066 | 0.073 | 0.02 | **176** |
+| go (1.14) | [ggql-i](https://github.com/uhn/ggql) (1.0.0) | 205058 | 0.062 | 0.060 | 0.068 | 0.088 | 0.02 | **253** |
+| go (1.14) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.9) | 32843 | 0.078 | 0.075 | 0.086 | 0.102 | 0.03 | **378** |
+
 
 ## More Information
 
