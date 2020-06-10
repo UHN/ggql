@@ -2,7 +2,7 @@
 
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
-[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url] [![ReportCard][ReportCard-Image]][ReporCard-URL]
+[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url] [![ReportCard][ReportCard-Image]][ReporCard-URL] [![Coverage][Coverage-Image]][Coverage-Url]
 ## Features
 
  - Simple binding of GraphQL schema elements to golang types and functions.
@@ -102,3 +102,5 @@ to
 [ReportCard-Image]: https://goreportcard.com/badge/github.com/uhn/ggql
 [Fossa-Url]: https://app.fossa.com/projects/git%2Bgithub.com%2FUHN%2Fggql?ref=badge_large
 [Fossa-Image]: https://app.fossa.com/api/projects/git%2Bgithub.com%2FUHN%2Fggql.svg?type=shield
+[Coveralls-Url]: https://coveralls.io/github/UHN/ggql?branch=master
+[Coveralls-Image]: https://coveralls.io/repos/github/UHN/ggql/badge.svg?branch=master
