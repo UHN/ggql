@@ -3,7 +3,7 @@
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
 
-[![License][License-Image]][License-Url] [![Build Status][Travis-Image]][Travis-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] ![[go doc][Godev-Image]][Godev-Url] [![Coverage][Coverage-Image]][Coverage-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url] 
+[![License][License-Image]][License-Url] [![Build Status][Travis-Image]][Travis-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] [![go.dev reference][Godoc-Image]][Godoc-Url] [![Coverage][Coverage-Image]][Coverage-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url] 
 
 ## Features
 
@@ -106,6 +106,5 @@ under the Apache Version 2.0 license found in the LICENSE file.
 [Coverage-Image]: https://coveralls.io/repos/github/UHN/ggql/badge.svg?branch=master
 [Travis-Image]: https://travis-ci.org/UHN/ggql.svg?branch=master
 [Travis-Url]: https://travis-ci.org/UHN/ggql?branch=master
-[![go.dev reference]
-[godev-Image]: (https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)]
-[godev-Url]: https://pkg.go.dev/github.com/uhn/ggql              
+[Godoc-Image]: https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square
+[Godoc-Url]: https://pkg.go.dev/mod/github.com/uhn/ggql@v1.0.0
