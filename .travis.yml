@@ -12,7 +12,6 @@ go_import_path: github.com/uhn/ggql
 install:
 before_script:
 - GO_LIST=$(go list ./...)
-- go build
 - $(exit $(go fmt $GO_LIST | wc -l))
 - go vet $GO_LIST
 script:
@@ -21,12 +20,3 @@ script:
 - go test -v -run=TestNoRace --failfast -p=1 ./...
 - if [[ "$TRAVIS_GO_VERSION" =~ 1.13 ]]; then ./scripts/cov.sh TRAVIS; else go test -v -race -p=1 --failfast ./...; fi
 - set +e
-
-deploy:
-  provider: script
-  cleanup: true
-  script: curl -sL http://git.io/goreleaser | bash
-  on:
-    tags: true
-    condition: $TRAVIS_GO_VERSION =~ 1.13
-
