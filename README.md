@@ -99,5 +99,6 @@ to
 [Fossa-Image]: https://app.fossa.io/api/projects/git%2Bgithub.com%2Fuhn%2Fggql.svg?type=shield
 [Coverage-Url]: https://coveralls.io/github/UHN/ggql?branch=master
 [Coverage-Image]: https://coveralls.io/repos/github/UHN/ggql/badge.svg?branch=master
-[Travis-Image]: https://img.shields.io/travis/uhn/ggql/master.svg?logo=travis
-[Travis-Url]: http://travis-ci.org/uhn/ggql?branch=master
+[Travis-Image]: https://travis-ci.org/UHN/ggql.svg?branch=master
+[Travis-Url]: https://travis-ci.org/UHN/ggql?branch=master
+              
