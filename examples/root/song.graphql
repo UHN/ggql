@@ -1,0 +1,20 @@
+
+type Query {
+  artists: [Artist]
+}
+
+type Artist {
+  name: String!
+  songs: [Song]
+  origin: [String]
+}
+
+type Song {
+  name: String!
+  artist: Artist
+  duration: Int
+  release: Date
+  likes: Int
+}
+
+scalar Date

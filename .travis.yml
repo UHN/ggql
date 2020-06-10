@@ -1,0 +1,21 @@
+language: go
+go:
+- 1.14.x
+- 1.13.x
+addons:
+  apt:
+    packages:
+    - rpm
+env:
+- GO111MODULE=on
+go_import_path: github.com/uhn/ggql
+install:
+before_script:
+- GO_LIST=$(go list ./...)
+- $(exit $(go fmt $GO_LIST | wc -l))
+- go vet $GO_LIST
+script:
+- set -e
+- go test -i ./...
+- go test -v -run=TestNoRace --failfast -p=1 ./...
+- set +e

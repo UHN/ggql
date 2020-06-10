@@ -1,0 +1,9 @@
+*~
+.#*
+vendor
+release
+Gopkg.lock
+cov.out
+coverage.out
+.idea/
+.vscode/
