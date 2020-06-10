@@ -3,7 +3,8 @@
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
 
-[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]  [![ReportCard][ReportCard-Image]][ReportCard-Url]  [![Coverage][Coverage-Image]][Coverage-Url][![Build Status][Travis-Image]][Travis-Url]
+[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] [![Coverage][Coverage-Image]][Coverage-Url] [![Build Status][Travis-Image]][Travis-Url]
+
 ## Features
 
  - Simple binding of GraphQL schema elements to golang types and functions.
@@ -94,8 +95,8 @@ to
 [License-Image]: https://img.shields.io/badge/License-Apache2-blue.svg
 [ReportCard-Url]: https://goreportcard.com/report/uhn/ggql
 [ReportCard-Image]: https://goreportcard.com/badge/github.com/uhn/ggql
-[Fossa-Url]: https://app.fossa.com/projects/git%2Bgithub.com%2FUHN%2Fggql?ref=badge_shield
-[Fossa-Image]: https://app.fossa.com/api/projects/git%2Bgithub.com%2FUHN%2Fggql.svg?type=shield
+[Fossa-Url]: https://app.fossa.io/projects/git%2Bgithub.com%2FUHN%2Fggql?ref=badge_shield
+[Fossa-Image]: https://app.fossa.io/api/projects/git%2Bgithub.com%2Fuhn%2Fggql.svg?type=shield
 [Coverage-Url]: https://coveralls.io/github/UHN/ggql?branch=master
 [Coverage-Image]: https://coveralls.io/repos/github/UHN/ggql/badge.svg?branch=master
 [Travis-Image]: https://img.shields.io/travis/uhn/ggql/master.svg?logo=travis
