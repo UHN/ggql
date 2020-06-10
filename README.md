@@ -2,6 +2,7 @@
 
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
+
 [![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]  [![ReportCard][ReportCard-Image]][ReportCard-Url]  [![Coverage][Coverage-Image]][Coverage-Url][![Build Status](https://img.shields.io/travis/uhn/ggql/master.svg?logo=travis)](http://travis-ci.org/uhn/ggql?branch=master)
 ## Features
 
