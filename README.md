@@ -3,7 +3,7 @@
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
 
-[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]  [![ReportCard][ReportCard-Image]][ReportCard-Url]  [![Coverage][Coverage-Image]][Coverage-Url][![Build Status](https://img.shields.io/travis/uhn/ggql/master.svg?logo=travis)](http://travis-ci.org/uhn/ggql?branch=master)
+[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]  [![ReportCard][ReportCard-Image]][ReportCard-Url]  [![Coverage][Coverage-Image]][Coverage-Url][![Build Status][Travis-Image]][Travis-Url]
 ## Features
 
  - Simple binding of GraphQL schema elements to golang types and functions.
@@ -98,3 +98,5 @@ to
 [Fossa-Image]: https://app.fossa.com/api/projects/git%2Bgithub.com%2FUHN%2Fggql.svg?type=shield
 [Coverage-Url]: https://coveralls.io/github/UHN/ggql?branch=master
 [Coverage-Image]: https://coveralls.io/repos/github/UHN/ggql/badge.svg?branch=master
+[Travis-Image]: https://img.shields.io/travis/uhn/ggql/master.svg?logo=travis
+[Travis-Url]: http://travis-ci.org/uhn/ggql?branch=master
