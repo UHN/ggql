@@ -1,7 +1,6 @@
 language: go
 go:
 - 1.14.x
-- 1.13.x
 addons:
   apt:
     packages:
@@ -11,7 +10,6 @@ env:
 go_import_path: github.com/uhn/ggql
 install:
 - go get github.com/mattn/goveralls
-- go get github.com/wadey/gocovmerge
 before_script:
 - GO_LIST=$(go list ./...)
 - $(exit $(go fmt $GO_LIST | wc -l))
@@ -20,6 +18,6 @@ script:
 - set -e
 - go test -i ./...
 - go test -v -run=TestNoRace --failfast -p=1 ./...
-- go test --failfast -v -race -covermode=atomic -coverprofile=./coverage.out
+- go test --failfast -v -race -covermode=atomic -coverprofile=./coverage.out -coverpkg=github.com/uhn/ggql ./...
 - if [[ "$TRAVIS_GO_VERSION" =~ 1.14 ]]; then $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service travis-ci; else go test -race -v -p=1 ./... --failfast; fi
 - set +e
