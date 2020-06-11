@@ -2,7 +2,9 @@
 
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
-[![License][License-Image]][License-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]  [![ReportCard][ReportCard-Image]][ReportCard-Url]  [![Coverage][Coverage-Image]][Coverage-Url]
+
+[![License][License-Image]][License-Url] [![Build Status][Travis-Image]][Travis-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] [![go.dev reference][Godoc-Image]][Godoc-Url] [![Coverage][Coverage-Image]][Coverage-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url] 
+
 ## Features
 
  - Simple binding of GraphQL schema elements to golang types and functions.
@@ -82,6 +84,11 @@ to
 | go (1.14) | [ggql-i](https://github.com/uhn/ggql) (1.0.0) | 205058 | 0.062 | 0.060 | 0.068 | 0.088 | 0.02 | **253** |
 | go (1.14) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.9) | 32843 | 0.078 | 0.075 | 0.086 | 0.102 | 0.03 | **378** |
 
+## License
+
+Unless otherwise noted, the NATS source files are distributed
+under the Apache Version 2.0 license found in the LICENSE file.
+
 
 ## More Information
 
@@ -93,7 +100,11 @@ to
 [License-Image]: https://img.shields.io/badge/License-Apache2-blue.svg
 [ReportCard-Url]: https://goreportcard.com/report/uhn/ggql
 [ReportCard-Image]: https://goreportcard.com/badge/github.com/uhn/ggql
-[Fossa-Url]: https://app.fossa.com/projects/git%2Bgithub.com%2FUHN%2Fggql?ref=badge_shield
-[Fossa-Image]: https://app.fossa.com/api/projects/git%2Bgithub.com%2FUHN%2Fggql.svg?type=shield
+[Fossa-Url]: https://app.fossa.io/projects/git%2Bgithub.com%2FUHN%2Fggql?ref=badge_shield
+[Fossa-Image]: https://app.fossa.io/api/projects/git%2Bgithub.com%2Fuhn%2Fggql.svg?type=shield
 [Coverage-Url]: https://coveralls.io/github/UHN/ggql?branch=master
 [Coverage-Image]: https://coveralls.io/repos/github/UHN/ggql/badge.svg?branch=master
+[Travis-Image]: https://travis-ci.org/UHN/ggql.svg?branch=master
+[Travis-Url]: https://travis-ci.org/UHN/ggql?branch=master
+[Godoc-Image]: https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square
+[Godoc-Url]: https://pkg.go.dev/mod/github.com/uhn/ggql@v1.0.0
