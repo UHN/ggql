@@ -37,6 +37,7 @@ func TestIntScalarCoerceIn(t *testing.T) {
 		uint16(3),
 		uint32(3),
 		uint64(3),
+		float64(3),
 	} {
 		r, err := scalar.CoerceIn(v)
 		checkEqual(t, 3, r, "Int.CoerceIn(%v) value mismatch", v)
