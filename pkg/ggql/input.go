@@ -88,19 +88,22 @@ func (t *Input) Extend(x Type) error {
 // CoerceIn coerces an input value into the expected input type if possible
 // otherwise an error is returned.
 func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
-	if obj, ok := v.(map[string]interface{}); ok {
-		for k := range obj {
+	switch tv := v.(type) {
+	case nil:
+		// nil is okay at this point
+	case map[string]interface{}:
+		for k := range tv {
 			if t.fields.get(k) == nil {
 				return nil, fmt.Errorf("%w %s is not in %s", ErrCoerce, k, t.Name())
 			}
 		}
 		for k, f := range t.fields.dict {
-			ov := obj[k]
+			ov := tv[k]
 			if ov == nil && f.Default != nil { // if not set then add the default value if not nil
-				obj[k] = f.Default
+				tv[k] = f.Default
 			} else if co, _ := f.Type.(InCoercer); co != nil {
 				if cv, err := co.CoerceIn(ov); err == nil {
-					obj[k] = cv
+					tv[k] = cv
 				} else {
 					return nil, newCoerceErr(ov, f.Type.Name())
 				}
@@ -108,7 +111,7 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 				return nil, newCoerceErr(ov, f.Type.Name())
 			}
 		}
-	} else {
+	default:
 		return nil, newCoerceErr(v, t.Name())
 	}
 	return v, nil
