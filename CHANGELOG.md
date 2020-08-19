@@ -3,6 +3,16 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.0.1] - 2020-08-19
+
+### Fixed
+
+- Coerce bug for Ints fixed to deal with the golang JSON parser that
+  makes all numbers float64 even if they are integers.
+
+- Null input bug fixed that did not allow missing input elements even
+  if they were no non-null.
+
 ## [1.0.0] - 2020-06-05
 
 First release

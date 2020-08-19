@@ -60,6 +60,12 @@ func (*intScalar) CoerceIn(v interface{}) (interface{}, error) {
 		v = int32(tv)
 	case uint64:
 		v = int32(tv)
+	case float64:
+		// Needed for nested types since the go JSON parser always emits float64 even if an integer.
+		v = int32(tv)
+		if float64(int32(tv)) != tv {
+			err = newCoerceErr(v, "Int")
+		}
 	default:
 		err = newCoerceErr(v, "Int")
 		v = nil
