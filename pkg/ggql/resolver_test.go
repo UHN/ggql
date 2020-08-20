@@ -399,6 +399,9 @@ type Subby { dummy: Int }
           "name": "Float"
         },
         {
+          "name": "Float64"
+        },
+        {
           "name": "ID"
         },
         {

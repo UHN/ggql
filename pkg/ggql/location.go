@@ -118,7 +118,15 @@ func Locate(t interface{}) Location {
 		return LocEnumValue
 	case *Input:
 		return LocInputObject
-	case *Scalar, *booleanScalar, *intScalar, *stringScalar, *floatScalar, *idScalar, *int64Scalar, *timeScalar:
+	case *Scalar,
+		*booleanScalar,
+		*intScalar,
+		*stringScalar,
+		*floatScalar,
+		*float64Scalar,
+		*idScalar,
+		*int64Scalar,
+		*timeScalar:
 		return LocScalar
 
 	case *Field:

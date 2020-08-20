@@ -20,38 +20,36 @@ import (
 	"github.com/uhn/ggql/pkg/ggql"
 )
 
-func TestFloatScalarCoerceIn(t *testing.T) {
+func TestFloat64ScalarCoerceIn(t *testing.T) {
 	root := ggql.NewRoot(nil)
-	tt := root.GetType("Float")
+	tt := root.GetType("Float64")
 	scalar, _ := tt.(ggql.InCoercer)
-	checkNotNil(t, scalar, "Float type should be a Coercer")
+	checkNotNil(t, scalar, "Float64 type should be a Coercer")
 
 	for _, v := range []interface{}{
 		float32(3.0),
 		float64(3.0),
 		int32(3),
 		int64(3),
+		"3.0",
 	} {
 		f, err := scalar.CoerceIn(v)
-		checkNil(t, err, "Float.CoerceIn error. %s", err)
-		checkEqual(t, float32(3.0), f, "Float.CoerceIn value mismatch for %T %v", v, v)
+		checkNil(t, err, "Float64.CoerceIn error. %s", err)
+		checkEqual(t, float64(3.0), f, "Float64.CoerceIn value mismatch for %T %v", v, v)
 	}
 	v, err := scalar.CoerceIn(nil)
-	checkNil(t, err, "Float.CoerceIn(nil) error. %s", err)
-	checkNil(t, v, "Float.CoerceIn(nil) should return nil")
+	checkNil(t, err, "Float64.CoerceIn(nil) error. %s", err)
+	checkNil(t, v, "Float64.CoerceIn(nil) should return nil")
 
 	_, err = scalar.CoerceIn(true)
-	checkNotNil(t, err, "Float.CoerceIn error")
-
-	_, err = scalar.CoerceIn("3.3")
-	checkNotNil(t, err, "Float.CoerceIn error")
+	checkNotNil(t, err, "Float64.CoerceIn error")
 }
 
-func TestFloatScalarCoerceOut(t *testing.T) {
+func TestFloat64ScalarCoerceOut(t *testing.T) {
 	root := ggql.NewRoot(nil)
-	tt := root.GetType("Float")
+	tt := root.GetType("Float64")
 	scalar, _ := tt.(ggql.OutCoercer)
-	checkNotNil(t, scalar, "Float type should be a Coercer")
+	checkNotNil(t, scalar, "Float64 type should be a Coercer")
 
 	for _, v := range []interface{}{
 		float32(3.0),
@@ -69,13 +67,13 @@ func TestFloatScalarCoerceOut(t *testing.T) {
 		"3.0",
 	} {
 		r, err := scalar.CoerceOut(v)
-		checkEqual(t, float32(3.0), r, "Float.CoerceOut value mismatch for %T", v)
-		checkNil(t, err, "Float.CoerceOut error. %s", err)
+		checkEqual(t, float64(3.0), r, "Float64.CoerceOut value mismatch for %T", v)
+		checkNil(t, err, "Float64.CoerceOut error. %s", err)
 	}
 	r, err := scalar.CoerceOut(nil)
-	checkNil(t, r, "Float.CoerceOut value mismatch")
-	checkNil(t, err, "Float.CoerceOut error. %s", err)
+	checkNil(t, r, "Float64.CoerceOut value mismatch")
+	checkNil(t, err, "Float64.CoerceOut error. %s", err)
 
 	_, err = scalar.CoerceOut(true)
-	checkNotNil(t, err, "Float.CoerceOut error")
+	checkNotNil(t, err, "Float64.CoerceOut error")
 }

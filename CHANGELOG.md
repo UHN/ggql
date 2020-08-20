@@ -3,6 +3,12 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.1.0] - 2020-08-20
+
+### Added
+
+- A Float64 type was added.
+
 ## [1.0.1] - 2020-08-19
 
 ### Fixed

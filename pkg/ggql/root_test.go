@@ -41,7 +41,7 @@ func TestRootGetType(t *testing.T) {
 func TestRootInit(t *testing.T) {
 	root := ggql.NewRoot(nil)
 
-	checkEqual(t, 15, len(root.Types()), "Root types should have all build in types.")
+	checkEqual(t, 16, len(root.Types()), "Root types should have all build in types.")
 
 	q := ggql.Object{Base: ggql.Base{N: "Query"}}
 	q.AddField(&ggql.FieldDef{Base: ggql.Base{N: "dummy"}, Type: &ggql.Ref{Base: ggql.Base{N: "Int"}}})
@@ -153,6 +153,8 @@ enum __TypeKind {
 scalar Boolean
 
 scalar Float
+
+scalar Float64
 
 scalar ID
 
@@ -269,6 +271,8 @@ enum __TypeKind {
 scalar Boolean
 
 scalar Float
+
+scalar Float64
 
 scalar ID
 

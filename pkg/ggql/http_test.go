@@ -15,11 +15,14 @@
 package ggql_test
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/uhn/ggql/pkg/ggql"
 )
@@ -44,7 +47,14 @@ func TestParseHTTP(t *testing.T) {
 	go func() { _ = http.ListenAndServe(fmt.Sprintf(":%d", port), nil) }()
 
 	u := fmt.Sprintf("http://localhost:%d/graphql", port)
-	res, err := http.Post(u, "application/graphql", strings.NewReader(`{artist(name: "Fazerdaze"){name}}`))
+
+	cx, cf := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cf()
+	req, err := http.NewRequestWithContext(cx, "POST", u, bytes.NewBufferString(`{artist(name: "Fazerdaze"){name}}`))
+	checkNil(t, err, "POST request creation failed. %s", err)
+	req.Header.Add("Content-Type", "application/graphql")
+	var res *http.Response
+	res, err = (&http.Client{}).Do(req)
 	checkNil(t, err, "POST failed. %s", err)
 
 	defer res.Body.Close()
