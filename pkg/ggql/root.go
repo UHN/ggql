@@ -452,6 +452,7 @@ func (root *Root) init() {
 	strType := addType(newStringScalar())
 	addType(newIntScalar())
 	addType(newFloatScalar())
+	addType(newFloat64Scalar())
 	addType(newBooleanScalar())
 	addType(newIDScalar())
 	if !root.excludeTime {

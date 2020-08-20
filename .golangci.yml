@@ -248,6 +248,7 @@ linters:
     - interfacer
     - nakedret
     - prealloc
+    - exhaustive
   disable-all: false
   presets:
     - bugs
