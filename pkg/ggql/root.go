@@ -23,6 +23,11 @@ import (
 	"sync"
 )
 
+// Relaxed if true relaxes coercion rules so that JSON types can be converted
+// to GraphQL types. For example a string can be coerced into an enum or a
+// JSON object can be converted into a GraphQL input type.
+var Relaxed = false
+
 // Root the root of a GraphQL schema.
 type Root struct {
 	types         *typeList

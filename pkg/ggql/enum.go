@@ -113,6 +113,11 @@ func (t *Enum) CoerceIn(v interface{}) (interface{}, error) {
 	if s, ok := v.(Symbol); ok {
 		return s, nil
 	}
+	if Relaxed {
+		if s, ok := v.(string); ok {
+			return Symbol(s), nil
+		}
+	}
 	return nil, newCoerceErr(v, t.N)
 }
 
