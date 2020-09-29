@@ -7,7 +7,7 @@ versioning.
 
 ### Added
 
-- Relaxed falg added to allow a string to be converted to an enum on input coercion.
+- Relaxed flag added to allow a string to be converted to an enum on input coercion.
 
 ## [1.1.0] - 2020-08-20
 
