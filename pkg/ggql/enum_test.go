@@ -124,6 +124,15 @@ enum Genre {
 	checkNil(t, r, "CoerceOut value mismatch")
 	checkNil(t, err, "CoerceOut error. %s", err)
 
+	ggql.Relaxed = true
+	r, err = enum.CoerceIn("abc")
+	checkNil(t, err, "Enum.CoerceIn(abc) relaxed should not return an error. %s", err)
+	checkEqual(t, ggql.Symbol("abc"), r, "coerce mismatch")
+
+	ggql.Relaxed = false
+	_, err = enum.CoerceIn("abc")
+	checkNotNil(t, err, "Enum.CoerceIn(abc) not relaxed should return an error.")
+
 	var v interface{}
 	v, err = enum.CoerceOut(ggql.Symbol("abc"))
 	checkNil(t, err, "Enum.CoerceOut(abc) should not return an error. %s", err)

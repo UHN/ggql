@@ -21,7 +21,7 @@ import (
 	"github.com/uhn/ggql/pkg/ggql"
 )
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 // Start of GraphQL package neutral type definitions.
 
 func setupReflectSongs() *RSchema {
@@ -184,7 +184,7 @@ func (sl RSongList) GetByName(name string) *RSong {
 }
 
 // End of GraphQL package neutral type definitions.
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 func setupTestReflectSongs(t *testing.T) *ggql.Root {
 	schema := setupReflectSongs()

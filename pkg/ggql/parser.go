@@ -49,7 +49,7 @@ const (
 	spaceChar = 'w' // white space in the char map, note a comma is considered white space
 	tokenChar = 't' // token in the char map, alphanumeric and underscore
 	numChar   = 'n' // number in the char map including ., +, - e, and E
-	//puncChar  = 'p' // punctuation in the char map
+	// puncChar  = 'p' // punctuation in the char map (not used in the code yet)
 
 	//   0123456789abcdef0123456789abcdef
 	charMap = "" +
