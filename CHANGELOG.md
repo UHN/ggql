@@ -3,6 +3,12 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.0] - 2020-09-29
+
+### Added
+
+- Relaxed falg added to allow a string to be converted to an enum on input coercion.
+
 ## [1.1.0] - 2020-08-20
 
 ### Added

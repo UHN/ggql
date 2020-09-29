@@ -74,6 +74,10 @@ func checkEqual(t *testing.T, expect, actual interface{}, format string, args ..
 		eq = asInt(t, actual, format, args...) == asInt(t, expect, format, args...)
 	case float32, float64:
 		eq = asFloat(t, actual, format, args...) == asFloat(t, expect, format, args...)
+	case ggql.Symbol:
+		if tx, ok := expect.(ggql.Symbol); ok {
+			eq = tx == ta
+		}
 	case string:
 		if tx, ok := expect.(string); ok {
 			eq = tx == ta

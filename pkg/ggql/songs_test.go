@@ -65,7 +65,7 @@ scalar Date
 directive @example on VARIABLE_DEFINITION
 `
 
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 // Start of GraphQL package neutral type definitions.
 
 func setupSongs() *Schema {
@@ -245,7 +245,7 @@ func (d *Date) String() string {
 }
 
 // End of GraphQL package neutral type definitions.
-////////////////////////////////////////////////////////////////////////////////
+// -----------------------------------------------------------------------------
 
 func setupTestSongs(t *testing.T, log *strings.Builder) *ggql.Root {
 	schema := setupSongs()
@@ -267,7 +267,7 @@ func (s *Schema) Resolve(field *ggql.Field, args map[string]interface{}) (interf
 	case "query":
 		return s.Query, nil
 	case "mutation":
-		//return s.Mutation, nil
+		// return s.Mutation, nil
 	case "subscription":
 		return s.Subscription, nil
 	}
