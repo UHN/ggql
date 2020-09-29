@@ -105,7 +105,7 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 				if cv, err := co.CoerceIn(ov); err == nil {
 					tv[k] = cv
 				} else {
-					return nil, newCoerceErr(ov, f.Type.Name())
+					return nil, err
 				}
 			} else {
 				return nil, newCoerceErr(ov, f.Type.Name())
