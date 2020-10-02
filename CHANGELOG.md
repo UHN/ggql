@@ -3,6 +3,12 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.1] - 2020-10-02
+
+### Fixed
+
+- Errors on coercing input type from variables now include the path to the error.
+
 ## [1.2.0] - 2020-09-29
 
 ### Added

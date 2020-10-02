@@ -105,6 +105,13 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 				if cv, err := co.CoerceIn(ov); err == nil {
 					tv[k] = cv
 				} else {
+					gerr, _ := err.(*Error)
+					if gerr == nil {
+						gerr = &Error{Base: err, Path: []interface{}{k}}
+						err = gerr
+					} else {
+						gerr.in(k)
+					}
 					return nil, err
 				}
 			} else {

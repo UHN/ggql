@@ -92,7 +92,12 @@ func (root *Root) ResolveExecutable(
 						v, err = ic.CoerceIn(v)
 					}
 					if err != nil {
-						err = resError(vd.line, vd.col, "%s for %s", err, vd.Name)
+						if gerr, _ := err.(*Error); gerr != nil {
+							gerr.Line = vd.line
+							gerr.Column = vd.col
+						} else {
+							err = resError(vd.line, vd.col, "%s for %s", err, vd.Name)
+						}
 						return
 					}
 					opVars[vd.Name] = v

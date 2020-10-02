@@ -50,6 +50,9 @@ func TestIntScalarCoerceIn(t *testing.T) {
 	_, err = scalar.CoerceIn(true)
 	checkNotNil(t, err, "Int.CoerceIn(true) error")
 
+	_, err = scalar.CoerceIn(3.2)
+	checkNotNil(t, err, "Int.CoerceIn(3.2) error")
+
 	v, err := scalar.CoerceIn(nil)
 	checkNil(t, err, "Int.CoerceIn(nil) error. %s", err)
 	checkNil(t, v, "Int.CoerceIn(nil) should return nil")
