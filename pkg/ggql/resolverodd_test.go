@@ -110,7 +110,7 @@ func (q *oddQuery) Resolve(field *ggql.Field, args map[string]interface{}) (inte
 	return nil, fmt.Errorf("type Query does not have field %s", field)
 }
 
-func testOddResolve(t *testing.T, src, expect string) {
+func testOddResolve(t *testing.T, src, expect string, vars map[string]interface{}) {
 	ggql.Sort = true
 	root := ggql.NewRoot(&oddSchema{})
 
@@ -119,7 +119,7 @@ func testOddResolve(t *testing.T, src, expect string) {
 
 	var b strings.Builder
 
-	result := root.ResolveString(src, "", nil)
+	result := root.ResolveString(src, "", vars)
 	_ = ggql.WriteJSONValue(&b, result, 2)
 
 	checkEqual(t, expect, b.String(), "result mismatch for %s", src)
@@ -137,7 +137,7 @@ func TestResolveInterfaceIntArray(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceInt64Array(t *testing.T) {
@@ -152,7 +152,7 @@ func TestResolveInterfaceInt64Array(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceAnyArray(t *testing.T) {
@@ -167,7 +167,7 @@ func TestResolveInterfaceAnyArray(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceBadAnyArray(t *testing.T) {
@@ -197,7 +197,7 @@ func TestResolveInterfaceBadAnyArray(t *testing.T) {
   ]
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceStrsArray(t *testing.T) {
@@ -212,7 +212,7 @@ func TestResolveInterfaceStrsArray(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceBoolsArray(t *testing.T) {
@@ -227,7 +227,7 @@ func TestResolveInterfaceBoolsArray(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceFloat32sArray(t *testing.T) {
@@ -242,7 +242,7 @@ func TestResolveInterfaceFloat32sArray(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceFloat64sArray(t *testing.T) {
@@ -257,7 +257,7 @@ func TestResolveInterfaceFloat64sArray(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceTimesArray(t *testing.T) {
@@ -270,7 +270,7 @@ func TestResolveInterfaceTimesArray(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceNestedErrors(t *testing.T) {
@@ -307,7 +307,7 @@ func TestResolveInterfaceNestedErrors(t *testing.T) {
   ]
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceEnumArg(t *testing.T) {
@@ -318,7 +318,7 @@ func TestResolveInterfaceEnumArg(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceEnumBadArg(t *testing.T) {
@@ -338,7 +338,7 @@ func TestResolveInterfaceEnumBadArg(t *testing.T) {
   ]
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceInputEnumBad(t *testing.T) {
@@ -358,7 +358,7 @@ func TestResolveInterfaceInputEnumBad(t *testing.T) {
   ]
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceListArg(t *testing.T) {
@@ -369,7 +369,30 @@ func TestResolveInterfaceListArg(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
+}
+
+func TestResolveInterfaceListVars(t *testing.T) {
+	src := `query call($arg: [Int!]!) {size(list: $arg)}`
+	expect := `{
+  "data": null,
+  "errors": [
+    {
+      "locations": [
+        {
+          "column": 14,
+          "line": 1
+        }
+      ],
+      "message": "can not coerce null into a Int!",
+      "path": [
+        1
+      ]
+    }
+  ]
+}
+`
+	testOddResolve(t, src, expect, map[string]interface{}{"arg": []interface{}{1, nil, 3}})
 }
 
 func TestResolveInterfaceListNullArg(t *testing.T) {
@@ -389,7 +412,7 @@ func TestResolveInterfaceListNullArg(t *testing.T) {
   ]
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceListEmptyArg(t *testing.T) {
@@ -400,7 +423,7 @@ func TestResolveInterfaceListEmptyArg(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }
 
 func TestResolveInterfaceNilTime(t *testing.T) {
@@ -411,5 +434,5 @@ func TestResolveInterfaceNilTime(t *testing.T) {
   }
 }
 `
-	testOddResolve(t, src, expect)
+	testOddResolve(t, src, expect, nil)
 }

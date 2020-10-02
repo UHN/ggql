@@ -104,6 +104,13 @@ func (t *List) CoerceIn(v interface{}) (interface{}, error) {
 				if err == nil {
 					list[i] = cv
 				} else {
+					gerr, _ := err.(*Error)
+					if gerr == nil {
+						gerr = &Error{Base: err, Path: []interface{}{i}}
+						err = gerr
+					} else {
+						gerr.in(i)
+					}
 					return nil, err
 				}
 			}

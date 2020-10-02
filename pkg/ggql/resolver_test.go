@@ -131,6 +131,22 @@ func TestResolveExecutableErrors(t *testing.T) {
 `, err.Error(), "result mismatch for %s", src)
 }
 
+func TestResolveExecutableErrors2(t *testing.T) {
+	root := setupTestSongs(t, nil)
+
+	src := `query test($id: String = "Who"){artist(name: $id){name,bad}}`
+	exe, err := root.ParseExecutableString(src)
+	checkNil(t, err, "parsing executable fail. %s", err)
+
+	vars := map[string]interface{}{"id": "Fazerdaze"}
+
+	_, err = root.ResolveExecutable(exe, "", vars)
+	checkEqual(t, `Errors{
+  resolve error: bad is not a field in Artist at artist.bad from 1:57
+}
+`, err.Error(), "result mismatch for %s", src)
+}
+
 func TestResolveInterfaceParseError(t *testing.T) {
 	src := `{title`
 	expect := `{

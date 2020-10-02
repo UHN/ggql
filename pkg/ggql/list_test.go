@@ -85,4 +85,21 @@ func TestList(t *testing.T) {
 
 	_, err = list.Resolve(&ggql.Field{Name: "bad"}, nil)
 	checkNotNil(t, err, "List.Resolve(bad) should return an error.")
+
+	imp := ggql.Input{
+		Base: ggql.Base{
+			N:    "Imp",
+			Desc: "Some input.",
+		},
+	}
+	imp.AddField(&ggql.InputField{
+		Base: ggql.Base{
+			N: "a",
+		},
+		Type: &ggql.List{Base: root.GetType("String")},
+	})
+	list = ggql.List{Base: &imp}
+	_, err = list.CoerceIn([]interface{}{map[string]interface{}{"a": 37}})
+	checkNotNil(t, err, "List.CoerceIn([{a:37}]) should return an error")
+
 }
