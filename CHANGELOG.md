@@ -3,6 +3,12 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.2] - 2020-11-27
+
+### Fixed
+
+- Field.String() would fail on nil arguments. Fixed.
+
 ## [1.2.1] - 2020-10-02
 
 ### Fixed

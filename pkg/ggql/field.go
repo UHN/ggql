@@ -86,8 +86,14 @@ func (f *Field) write(buf *bytes.Buffer, depth int) {
 	_, _ = buf.WriteString(f.Name)
 	if 0 < len(f.Args) {
 		_, _ = buf.WriteString("(")
-		for i, av := range f.Args {
-			if 0 < i {
+		first := true
+		for _, av := range f.Args {
+			if av == nil {
+				continue
+			}
+			if first {
+				first = false
+			} else {
 				_, _ = buf.WriteString(", ")
 			}
 			_ = av.Write(buf)
