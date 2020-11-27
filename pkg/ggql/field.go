@@ -90,7 +90,9 @@ func (f *Field) write(buf *bytes.Buffer, depth int) {
 			if 0 < i {
 				_, _ = buf.WriteString(", ")
 			}
-			_ = av.Write(buf)
+			if av != nil {
+				_ = av.Write(buf)
+			}
 		}
 		_, _ = buf.WriteString(")")
 	}
