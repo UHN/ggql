@@ -111,7 +111,10 @@ func (t *Enum) CoerceIn(v interface{}) (interface{}, error) {
 		return nil, nil
 	}
 	if s, ok := v.(Symbol); ok {
-		return s, nil
+		if t.values.has(s) {
+			return s, nil
+		}
+		return nil, fmt.Errorf("%s is not a valid enum value in %s", s, t.Name())
 	}
 	if Relaxed {
 		if s, ok := v.(string); ok {

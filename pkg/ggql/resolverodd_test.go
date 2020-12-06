@@ -354,6 +354,13 @@ func TestResolveInterfaceInputEnumBad(t *testing.T) {
         "lunch",
         "what"
       ]
+    },
+    {
+      "message": "resolve error: DUCK is not a valid enum value in Food at main",
+      "path": [
+        "lunch",
+        "what"
+      ]
     }
   ]
 }

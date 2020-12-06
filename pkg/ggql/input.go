@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"reflect"
 	"strings"
 )
 
@@ -27,6 +28,8 @@ type Input struct {
 
 	// Fields in the input object.
 	fields inputFieldList
+
+	meta reflect.Type
 }
 
 // Rank of the type.
@@ -94,34 +97,100 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 	case map[string]interface{}:
 		for k := range tv {
 			if t.fields.get(k) == nil {
-				return nil, fmt.Errorf("%w %s is not in %s", ErrCoerce, k, t.Name())
+				return nil, fmt.Errorf("%s is not a field in %s", k, t.Name())
+			}
+		}
+		var rv reflect.Value
+		rt := t.meta
+		if rt != nil {
+			if rt.Kind() == reflect.Ptr {
+				rt = rt.Elem()
+			}
+			if rt.Kind() == reflect.Struct {
+				rv = reflect.New(rt)
 			}
 		}
 		for k, f := range t.fields.dict {
 			ov := tv[k]
-			if ov == nil && f.Default != nil { // if not set then add the default value if not nil
-				tv[k] = f.Default
+			if ov == nil {
+				if f.Default != nil { // if not set then add the default value if not nil
+					if rt != nil {
+						if err := t.reflectSet(rv, rt, k, f.Default); err != nil {
+							return nil, inErr(err, k)
+						}
+					} else {
+						tv[k] = f.Default
+					}
+				} else if _, ok := f.Type.(*NonNull); ok {
+					return nil, fmt.Errorf("%s is required but missing", k)
+				}
 			} else if co, _ := f.Type.(InCoercer); co != nil {
 				if cv, err := co.CoerceIn(ov); err == nil {
-					tv[k] = cv
-				} else {
-					gerr, _ := err.(*Error)
-					if gerr == nil {
-						gerr = &Error{Base: err, Path: []interface{}{k}}
-						err = gerr
+					if rt != nil {
+						if err = t.reflectSet(rv, rt, k, cv); err != nil {
+							return nil, inErr(err, k)
+						}
 					} else {
-						gerr.in(k)
+						tv[k] = cv
 					}
+				} else {
+					return nil, inErr(err, k)
 					return nil, err
 				}
 			} else {
 				return nil, newCoerceErr(ov, f.Type.Name())
 			}
 		}
+		if rt != nil {
+			v = rv.Interface()
+		}
 	default:
-		return nil, newCoerceErr(v, t.Name())
+		if t.meta == nil || t.meta != reflect.TypeOf(v) {
+			return nil, newCoerceErr(v, t.Name())
+		}
 	}
 	return v, nil
+}
+
+func inErr(err error, k string) error {
+	gerr, _ := err.(*Error)
+	if gerr == nil {
+		gerr = &Error{Base: err, Path: []interface{}{k}}
+		err = gerr
+	} else {
+		gerr.in(k)
+	}
+	return err
+}
+
+// As input is validated additional type conversions should not be needed.
+func (t *Input) reflectSet(rv reflect.Value, rt reflect.Type, key string, v interface{}) (err error) {
+	rv = rv.Elem()
+	rv = rv.FieldByNameFunc(func(k string) bool { return strings.EqualFold(k, key) })
+	if rv.CanSet() {
+		vv := reflect.ValueOf(v)
+		vt := vv.Type()
+		if vt.AssignableTo(rv.Type()) {
+			rv.Set(vv)
+			return nil
+		}
+		// Try type conversions of int and float types.
+		switch rv.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			switch vt.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				rv.SetInt(vv.Int())
+			}
+		case reflect.Float32, reflect.Float64:
+			switch vt.Kind() {
+			case reflect.Float32, reflect.Float64:
+				rv.SetFloat(vv.Float())
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				rv.SetFloat(float64(vv.Int()))
+			}
+		}
+	}
+	return nil
 }
 
 // Validate a type.

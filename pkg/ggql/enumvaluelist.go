@@ -47,3 +47,12 @@ func (el *enumValueList) add(evs ...*EnumValue) error {
 	}
 	return nil
 }
+
+func (el *enumValueList) has(v Symbol) bool {
+	if el.dict != nil {
+		if _, ok := el.dict[string(v)]; ok {
+			return true
+		}
+	}
+	return false
+}
