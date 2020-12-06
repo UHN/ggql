@@ -135,7 +135,6 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 					}
 				} else {
 					return nil, inErr(err, k)
-					return nil, err
 				}
 			} else {
 				return nil, newCoerceErr(ov, f.Type.Name())
@@ -172,7 +171,7 @@ func (t *Input) reflectSet(rv reflect.Value, rt reflect.Type, key string, v inte
 		vt := vv.Type()
 		if vt.AssignableTo(rv.Type()) {
 			rv.Set(vv)
-			return nil
+			return
 		}
 		// Try type conversions of int and float types.
 		switch rv.Kind() {
@@ -180,17 +179,20 @@ func (t *Input) reflectSet(rv reflect.Value, rt reflect.Type, key string, v inte
 			switch vt.Kind() {
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				rv.SetInt(vv.Int())
+				return
 			}
 		case reflect.Float32, reflect.Float64:
 			switch vt.Kind() {
 			case reflect.Float32, reflect.Float64:
 				rv.SetFloat(vv.Float())
+				return
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				rv.SetFloat(float64(vv.Int()))
+				return
 			}
 		}
 	}
-	return nil
+	return fmt.Errorf("can not coerce a %T into a %s", v, rv.Kind())
 }
 
 // Validate a type.

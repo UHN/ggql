@@ -33,16 +33,20 @@ type CSchema struct {
 
 type Numbers struct {
 	A int
-	B int
+	B float64
 	C *Numbers
 }
 
 func (n *Numbers) sum() int {
-	x := n.A + n.B
+	x := n.A + int(n.B)
 	if n.C != nil {
 		x += n.C.sum()
 	}
 	return x
+}
+
+type Unum struct {
+	A uint
 }
 
 func (s *CSchema) Resolve(field *ggql.Field, args map[string]interface{}) (interface{}, error) {
@@ -53,7 +57,8 @@ func (s *CSchema) Resolve(field *ggql.Field, args map[string]interface{}) (inter
 }
 
 func (q *CQuery) Resolve(field *ggql.Field, args map[string]interface{}) (interface{}, error) {
-	if field.Name == "sum" {
+	switch field.Name {
+	case "sum":
 		numbers, _ := args["numbers"].(*Numbers)
 		var sum int
 		if numbers != nil {
@@ -71,8 +76,8 @@ type Query {
 }
 
 input Numbers {
-  a: Int
-  b: Int
+  a: Int = 1
+  b: Float
   c: Numbers
 }
 `
@@ -88,12 +93,106 @@ input Numbers {
 	err = root.RegisterType(&CQuery{}, "Numbers")
 	checkNotNil(t, err, "second register should fail")
 
-	result := root.ResolveString("{sum(numbers: {a:1 b:2 c:{a:3 b:4}})}", "", nil)
+	result := root.ResolveString("{sum(numbers: {b:2 c:{a:3 b:4}})}", "", nil)
 	var b strings.Builder
 	_ = ggql.WriteJSONValue(&b, result, 2)
 	checkEqual(t, `{
   "data": {
     "sum": 10
+  }
+}
+`, b.String(), "result should match")
+}
+
+func TestCoerceInputReflectError(t *testing.T) {
+	sdl := `
+type Query {
+  sum(numbers: Numbers): Int
+}
+
+input Numbers {
+  a: Int = -1
+  b: Int
+  c: Numbers
+}
+`
+	ggql.Sort = true
+	schema := CSchema{}
+
+	root := ggql.NewRoot(&schema)
+	err := root.ParseString(sdl)
+	checkNil(t, err, "no error should be returned when parsing a valid SDL. %s", err)
+
+	err = root.RegisterType(&Unum{}, "Numbers")
+	checkNil(t, err, "no error should be returned when registering a type. %s", err)
+
+	result := root.ResolveString("{sum(numbers: {b:-2})}", "", nil)
+	var b strings.Builder
+	_ = ggql.WriteJSONValue(&b, result, 2)
+	checkEqual(t, `{
+  "data": {
+    "sum": null
+  },
+  "errors": [
+    {
+      "message": "resolve error: can not coerce a int64 into a uint at a",
+      "path": [
+        "sum",
+        "numbers"
+      ]
+    }
+  ]
+}
+`, b.String(), "result should match")
+
+	result = root.ResolveString("{sum(numbers: {a: 1 b:2})}", "", nil)
+	b.Reset()
+	_ = ggql.WriteJSONValue(&b, result, 2)
+	checkEqual(t, `{
+  "data": {
+    "sum": null
+  },
+  "errors": [
+    {
+      "message": "resolve error: can not coerce a int32 into a uint at a",
+      "path": [
+        "sum",
+        "numbers"
+      ]
+    }
+  ]
+}
+`, b.String(), "result should match")
+}
+
+func TestCoerceInputFloatInt(t *testing.T) {
+	sdl := `
+type Query {
+  sum(numbers: Numbers): Int
+}
+
+input Numbers {
+  a: Int = -1
+  b: Int
+  c: Numbers
+}
+`
+	ggql.Sort = true
+	schema := CSchema{}
+
+	root := ggql.NewRoot(&schema)
+	err := root.ParseString(sdl)
+	checkNil(t, err, "no error should be returned when parsing a valid SDL. %s", err)
+
+	err = root.RegisterType(&Numbers{}, "Numbers")
+	checkNil(t, err, "no error should be returned when registering a type. %s", err)
+
+	result := root.ResolveString("{sum(numbers: {b:-2})}", "", nil)
+	var b strings.Builder
+	_ = ggql.WriteJSONValue(&b, result, 2)
+	checkEqual(t, `{
+  "data": {
+    "sum": -3
   }
 }
 `, b.String(), "result should match")
