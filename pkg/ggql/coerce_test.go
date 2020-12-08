@@ -145,7 +145,7 @@ input Numbers {
 }
 `, b.String(), "result should match")
 
-	result = root.ResolveString("{sum(numbers: {a: 1 b:2})}", "", nil)
+	result = root.ResolveString("{sum(numbers: {a: 1})}", "", nil)
 	b.Reset()
 	_ = ggql.WriteJSONValue(&b, result, 2)
 	checkEqual(t, `{
