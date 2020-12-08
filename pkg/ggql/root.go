@@ -162,7 +162,7 @@ func (root *Root) getReflectType(meta reflect.Type) (obj Type) {
 // capitalizing the GraphQL field name. It can also be used to change the
 // order of the arguments to the field.
 func (root *Root) RegisterField(gqlType, gqlField, goField string, args ...string) (err error) {
-	obj, _, err := root.getObjType(gqlType) // TBD input also
+	obj, _, err := root.getObjType(gqlType)
 	if err != nil {
 		return err
 	}
