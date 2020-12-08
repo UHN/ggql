@@ -115,7 +115,7 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 			if ov == nil {
 				if f.Default != nil { // if not set then add the default value if not nil
 					if rt != nil {
-						if err := t.reflectSet(rv, rt, k, f.Default); err != nil {
+						if err := t.reflectSet(rv, k, f.Default); err != nil {
 							return nil, inErr(err, k)
 						}
 					} else {
@@ -127,7 +127,7 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 			} else if co, _ := f.Type.(InCoercer); co != nil {
 				if cv, err := co.CoerceIn(ov); err == nil {
 					if rt != nil {
-						if err = t.reflectSet(rv, rt, k, cv); err != nil {
+						if err = t.reflectSet(rv, k, cv); err != nil {
 							return nil, inErr(err, k)
 						}
 					} else {
@@ -163,7 +163,7 @@ func inErr(err error, k string) error {
 }
 
 // As input is validated additional type conversions should not be needed.
-func (t *Input) reflectSet(rv reflect.Value, rt reflect.Type, key string, v interface{}) (err error) {
+func (t *Input) reflectSet(rv reflect.Value, key string, v interface{}) (err error) {
 	rv = rv.Elem()
 	rv = rv.FieldByNameFunc(func(k string) bool { return strings.EqualFold(k, key) })
 	if rv.CanSet() {

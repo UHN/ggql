@@ -57,8 +57,7 @@ func (s *CSchema) Resolve(field *ggql.Field, args map[string]interface{}) (inter
 }
 
 func (q *CQuery) Resolve(field *ggql.Field, args map[string]interface{}) (interface{}, error) {
-	switch field.Name {
-	case "sum":
+	if field.Name == "sum" {
 		numbers, _ := args["numbers"].(*Numbers)
 		var sum int
 		if numbers != nil {
