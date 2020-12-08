@@ -92,23 +92,16 @@ func (t *NonNull) Validate(root *Root) (errs []error) {
 // CoerceIn coerces an input value into the expected input type if possible
 // otherwise an error is returned.
 func (t *NonNull) CoerceIn(v interface{}) (interface{}, error) {
-	return t.coerce(v, true)
+	if co, _ := t.Base.(InCoercer); co != nil && v != nil {
+		return co.CoerceIn(v)
+	}
+	return nil, newCoerceErr(v, t.Name())
 }
 
 // CoerceOut coerces a result value into a value suitable for output.
 func (t *NonNull) CoerceOut(v interface{}) (interface{}, error) {
-	return t.coerce(v, false)
-}
-
-func (t *NonNull) coerce(v interface{}, in bool) (interface{}, error) {
-	if in {
-		if co, _ := t.Base.(InCoercer); co != nil && v != nil {
-			return co.CoerceIn(v)
-		}
-	} else {
-		if co, _ := t.Base.(OutCoercer); co != nil && v != nil {
-			return co.CoerceOut(v)
-		}
+	if co, _ := t.Base.(OutCoercer); co != nil && v != nil {
+		return co.CoerceOut(v)
 	}
 	return nil, newCoerceErr(v, t.Name())
 }
