@@ -2190,6 +2190,13 @@ func TestResolveValidateCoerceObjectWrongType(t *testing.T) {
         "options",
         "misc"
       ]
+    },
+    {
+      "message": "resolve error: width is required but missing",
+      "path": [
+        "options",
+        "misc"
+      ]
     }
   ]
 }
@@ -2262,6 +2269,13 @@ func TestResolveValidateArgInput(t *testing.T) {
         "options",
         "misc"
       ]
+    },
+    {
+      "message": "resolve error: width is required but missing",
+      "path": [
+        "options",
+        "misc"
+      ]
     }
   ]
 }
@@ -2275,7 +2289,7 @@ func TestResolveValidateArgInputExtra(t *testing.T) {
   },
   "errors": [
     {
-      "message": "resolve error: height not a field in Misc",
+      "message": "resolve error: height is not a field in Misc",
       "path": [
         "options",
         "misc"

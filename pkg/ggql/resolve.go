@@ -445,42 +445,23 @@ func (root *Root) replaceArgVars(vars map[string]interface{}, v interface{}, at 
 			}
 		}
 	case map[string]interface{}:
-		var it *Input
-		if at != nil {
-			it, _ = BaseType(at).(*Input)
-		}
-		required := map[string]bool{}
-		if it != nil {
-			for _, f := range it.fields.list {
-				if _, ok := f.Type.(*NonNull); ok {
-					required[f.N] = false
-				}
-			}
-		}
-		for k, v := range tv {
-			var vt Type
-			if it != nil {
+		if it, _ := BaseType(at).(*Input); it != nil {
+			for k, v := range tv {
+				var vt Type
 				if f := it.fields.get(k); f != nil {
 					vt = f.Type
-					required[k] = true
-				} else {
-					ea = append(ea, resWarnp(nil, "%s not a field in %s", k, it.Name()))
 				}
+				tv[k], ea2 = root.replaceArgVars(vars, v, vt)
+				ea = append(ea, ea2...)
 			}
-			tv[k], ea2 = root.replaceArgVars(vars, v, vt)
-			ea = append(ea, ea2...)
-		}
-		for k, v := range required {
-			if !v {
-				ea = append(ea, resWarnp(nil, "%s is required but missing", k))
+			if val, err = it.CoerceIn(val); err != nil {
+				ea = append(ea, resWarnp(nil, "%s", err))
 			}
 		}
 	case []interface{}:
 		var mt Type
-		if at != nil {
-			if lt, _ := at.(*List); lt != nil {
-				mt = lt.Base
-			}
+		if lt, _ := at.(*List); lt != nil {
+			mt = lt.Base
 		}
 		for i, v := range tv {
 			tv[i], ea2 = root.replaceArgVars(vars, v, mt)
@@ -494,11 +475,9 @@ func (root *Root) replaceArgVars(vars map[string]interface{}, v interface{}, at 
 			}
 		}
 	default:
-		if at != nil {
-			if ic, _ := at.(InCoercer); ic != nil { // validated in SDL validation
-				if val, err = ic.CoerceIn(val); err != nil {
-					ea = append(ea, resWarnp(nil, "%s", err))
-				}
+		if ic, _ := at.(InCoercer); ic != nil { // validated in SDL validation
+			if val, err = ic.CoerceIn(val); err != nil {
+				ea = append(ea, resWarnp(nil, "%s", err))
 			}
 		}
 	}

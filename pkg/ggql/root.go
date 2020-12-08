@@ -98,17 +98,26 @@ func (root *Root) Types() []Type {
 // condition of a fragment when used with a union. It should also be used when
 // a field or field arguments can not be mapped automatically.
 func (root *Root) RegisterType(sample interface{}, gqlType string) error {
-	obj, err := root.getObjType(gqlType)
+	obj, input, err := root.getObjType(gqlType)
 	if err != nil {
 		return err
 	}
-	return root.regType(sample, obj)
+	if obj != nil {
+		return root.regType(sample, obj)
+	}
+	return root.regInput(sample, input)
 }
 
-func (root *Root) getObjType(gqlType string) (obj *Object, err error) {
+func (root *Root) getObjType(gqlType string) (obj *Object, input *Input, err error) {
 	root.init()
 	if 0 < len(gqlType) && gqlType != schemaStr {
-		if obj, _ = root.types.get(gqlType).(*Object); obj == nil {
+		t := root.types.get(gqlType)
+		switch tt := t.(type) {
+		case *Object:
+			obj = tt
+		case *Input:
+			input = tt
+		default:
 			err = fmt.Errorf("%s %w or not an Object", gqlType, ErrNotFound)
 		}
 	} else {
@@ -128,6 +137,16 @@ func (root *Root) regType(sample interface{}, obj *Object) error {
 	return nil
 }
 
+func (root *Root) regInput(sample interface{}, input *Input) error {
+	meta := reflect.TypeOf(sample)
+	if input.meta != nil && input.meta != meta {
+		return fmt.Errorf("%w: %s is already registered as a %s", ErrDuplicate, input.N, input.meta.String())
+	}
+	input.meta = meta
+
+	return nil
+}
+
 func (root *Root) getReflectType(meta reflect.Type) (obj Type) {
 	for _, t := range root.types.list {
 		if o, _ := t.(*Object); o != nil && o.meta == meta {
@@ -143,11 +162,11 @@ func (root *Root) getReflectType(meta reflect.Type) (obj Type) {
 // capitalizing the GraphQL field name. It can also be used to change the
 // order of the arguments to the field.
 func (root *Root) RegisterField(gqlType, gqlField, goField string, args ...string) (err error) {
-	obj, err := root.getObjType(gqlType)
+	obj, _, err := root.getObjType(gqlType)
 	if err != nil {
 		return err
 	}
-	if obj.meta == nil {
+	if obj == nil || obj.meta == nil {
 		return fmt.Errorf("%w: %s has not been registered as a type", ErrMeta, obj.N)
 	}
 	fd := obj.fields.get(gqlField)
@@ -892,7 +911,7 @@ func (root *Root) newDeprecatedDirective() Type {
 	return &t
 }
 
-// directive @go(type: String!) on SCHEMA | QUERY | MUTATION | SUBSCRIPTION | OBJECT | FIELD.
+// directive @go(type: String!) on SCHEMA | QUERY | MUTATION | SUBSCRIPTION | OBJECT | FIELD | INPUT_OBJECT.
 func (root *Root) newGoDirective() Type {
 	t := Directive{
 		Base: Base{

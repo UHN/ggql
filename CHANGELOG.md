@@ -3,6 +3,12 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.3] - 2020-12-08
+
+### Fixed
+
+- Complex input objects that are registered are now created and placed in the args.
+
 ## [1.2.2] - 2020-11-27
 
 ### Fixed
