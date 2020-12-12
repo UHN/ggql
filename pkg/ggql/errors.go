@@ -71,7 +71,8 @@ func (err Errors) Error() string {
 
 func (err Errors) in(loc interface{}) {
 	for _, e := range err {
-		if ee, _ := e.(*Error); ee != nil {
+		var ee *Error
+		if errors.As(e, &ee) {
 			ee.in(loc)
 		}
 	}

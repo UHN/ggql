@@ -35,12 +35,16 @@ type Numbers struct {
 	A int
 	B float64
 	C *Numbers
+	D []int
 }
 
 func (n *Numbers) sum() int {
 	x := n.A + int(n.B)
 	if n.C != nil {
 		x += n.C.sum()
+	}
+	for _, n := range n.D {
+		x += n
 	}
 	return x
 }
@@ -68,7 +72,7 @@ func (q *CQuery) Resolve(field *ggql.Field, args map[string]interface{}) (interf
 	return nil, fmt.Errorf("type Query does not have field %s", field)
 }
 
-func TestCoerceInput(t *testing.T) {
+func TestCoerceInputOk(t *testing.T) {
 	sdl := `
 type Query {
   sum(numbers: Numbers): Int
@@ -78,6 +82,7 @@ input Numbers {
   a: Int = 1
   b: Float
   c: Numbers
+  d: [Int!]
 }
 `
 	ggql.Sort = true
@@ -92,12 +97,12 @@ input Numbers {
 	err = root.RegisterType(&CQuery{}, "Numbers")
 	checkNotNil(t, err, "second register should fail")
 
-	result := root.ResolveString("{sum(numbers: {b:2 c:{a:3 b:4}})}", "", nil)
+	result := root.ResolveString("{sum(numbers: {b:2 c:{a:3 b:4} d:[5 6]})}", "", nil)
 	var b strings.Builder
 	_ = ggql.WriteJSONValue(&b, result, 2)
 	checkEqual(t, `{
   "data": {
-    "sum": 10
+    "sum": 21
   }
 }
 `, b.String(), "result should match")
@@ -113,6 +118,7 @@ input Numbers {
   a: Int = -1
   b: Int
   c: Numbers
+  d: [String!]
 }
 `
 	ggql.Sort = true
@@ -125,7 +131,7 @@ input Numbers {
 	err = root.RegisterType(&Unum{}, "Numbers")
 	checkNil(t, err, "no error should be returned when registering a type. %s", err)
 
-	result := root.ResolveString("{sum(numbers: {b:-2})}", "", nil)
+	result := root.ResolveString("{sum(numbers: {})}", "", nil)
 	var b strings.Builder
 	_ = ggql.WriteJSONValue(&b, result, 2)
 	checkEqual(t, `{

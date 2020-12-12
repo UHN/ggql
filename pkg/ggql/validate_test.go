@@ -15,6 +15,7 @@
 package ggql_test
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -39,12 +40,12 @@ func valTest(t *testing.T, data []*valTestData, debug bool) {
 }
 
 func checkValErr(t *testing.T, err error, where string, expect ...string) {
-	errs, ok := err.(ggql.Errors)
-	if !ok {
+	var errs ggql.Errors
+	if !errors.As(err, &errs) {
 		t.Fatalf("expected a ggql.Errors error, not a %T (%s)at %s", err, err, where)
 	}
 	for _, x := range expect {
-		ok = false
+		ok := false
 		for _, e := range errs {
 			if strings.Contains(e.Error(), x) {
 				ok = true
