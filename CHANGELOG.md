@@ -3,6 +3,12 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.4] - 2020-12-12
+
+### Fixed
+
+- List in complext types are now extracted.
+
 ## [1.2.3] - 2020-12-08
 
 ### Fixed

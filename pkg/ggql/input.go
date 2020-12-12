@@ -186,6 +186,14 @@ func (t *Input) reflectSet(rv reflect.Value, v interface{}) (err error) {
 				rv.SetInt(vv.Int())
 				return
 			}
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			switch vt.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				if i := vv.Int(); 0 <= i {
+					rv.SetUint(uint64(i))
+					return
+				}
+			}
 		case reflect.Float32, reflect.Float64:
 			switch vt.Kind() {
 			case reflect.Float32, reflect.Float64:
