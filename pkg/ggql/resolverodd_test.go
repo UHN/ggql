@@ -95,7 +95,7 @@ func (q *oddQuery) Resolve(field *ggql.Field, args map[string]interface{}) (inte
 	case "nestErrors":
 		return 2, ggql.Errors{
 			fmt.Errorf("error one"),
-			fmt.Errorf("error two"),
+			&ggql.Error{Base: fmt.Errorf("error two"), Path: []interface{}{"here"}},
 		}
 	case "eat":
 		food, _ := args["what"].(ggql.Symbol)
@@ -299,7 +299,7 @@ func TestResolveInterfaceNestedErrors(t *testing.T) {
           "line": 1
         }
       ],
-      "message": "resolve error: error two",
+      "message": "resolve error: error two at here",
       "path": [
         "nestErrors"
       ]

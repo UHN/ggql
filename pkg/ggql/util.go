@@ -14,7 +14,10 @@
 
 package ggql
 
-import "unsafe"
+import (
+	"errors"
+	"unsafe"
+)
 
 // IsNil checks for a nil value of an interface. Go values have two components
 // not exposed, a type component and a value component. Further reading:
@@ -42,20 +45,23 @@ func BaseType(t Type) Type {
 // FormErrorsResult forms an errors array suitable for returning from GraphQL
 // request. The result will include path and location when possible.
 func FormErrorsResult(err error) []interface{} {
-	errors := []interface{}{}
-	if ea, ok := err.(Errors); ok {
+	eList := []interface{}{}
+	var ea Errors
+
+	if errors.As(err, &ea) {
 		for _, e := range ea {
-			errors = append(errors, formOneErrorResult(e))
+			eList = append(eList, formOneErrorResult(e))
 		}
 	} else {
-		errors = append(errors, formOneErrorResult(err))
+		eList = append(eList, formOneErrorResult(err))
 	}
-	return errors
+	return eList
 }
 
 func formOneErrorResult(err error) map[string]interface{} {
 	em := map[string]interface{}{}
-	if e, _ := err.(*Error); e != nil {
+	var e *Error
+	if errors.As(err, &e) {
 		em["message"] = e.Base.Error()
 		if 0 < e.Line || 0 < e.Column {
 			em["locations"] = []interface{}{map[string]interface{}{"line": e.Line, "column": e.Column}}

@@ -16,6 +16,7 @@ package ggql
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"reflect"
@@ -115,7 +116,7 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 			if ov == nil {
 				if f.Default != nil { // if not set then add the default value if not nil
 					if rt != nil {
-						if err := t.reflectSet(rv, k, f.Default); err != nil {
+						if err := t.reflectSetKey(rv, k, f.Default); err != nil {
 							return nil, inErr(err, k)
 						}
 					} else {
@@ -127,7 +128,7 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 			} else if co, _ := f.Type.(InCoercer); co != nil {
 				if cv, err := co.CoerceIn(ov); err == nil {
 					if rt != nil {
-						if err = t.reflectSet(rv, k, cv); err != nil {
+						if err = t.reflectSetKey(rv, k, cv); err != nil {
 							return nil, inErr(err, k)
 						}
 					} else {
@@ -152,20 +153,24 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 }
 
 func inErr(err error, k string) error {
-	gerr, _ := err.(*Error)
-	if gerr == nil {
+	var gerr *Error
+	if errors.As(err, &gerr) {
+		gerr.in(k)
+	} else {
 		gerr = &Error{Base: err, Path: []interface{}{k}}
 		err = gerr
-	} else {
-		gerr.in(k)
 	}
 	return err
 }
 
-// As input is validated additional type conversions should not be needed.
-func (t *Input) reflectSet(rv reflect.Value, key string, v interface{}) (err error) {
+func (t *Input) reflectSetKey(rv reflect.Value, key string, v interface{}) (err error) {
 	rv = rv.Elem()
 	rv = rv.FieldByNameFunc(func(k string) bool { return strings.EqualFold(k, key) })
+
+	return t.reflectSet(rv, v)
+}
+
+func (t *Input) reflectSet(rv reflect.Value, v interface{}) (err error) {
 	if rv.CanSet() {
 		vv := reflect.ValueOf(v)
 		vt := vv.Type()
@@ -181,6 +186,14 @@ func (t *Input) reflectSet(rv reflect.Value, key string, v interface{}) (err err
 				rv.SetInt(vv.Int())
 				return
 			}
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			switch vt.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				if i := vv.Int(); 0 <= i {
+					rv.SetUint(uint64(i))
+					return
+				}
+			}
 		case reflect.Float32, reflect.Float64:
 			switch vt.Kind() {
 			case reflect.Float32, reflect.Float64:
@@ -188,6 +201,18 @@ func (t *Input) reflectSet(rv reflect.Value, key string, v interface{}) (err err
 				return
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				rv.SetFloat(float64(vv.Int()))
+				return
+			}
+		case reflect.Slice:
+			if vt.Kind() == reflect.Slice {
+				i := vv.Len()
+				av := reflect.MakeSlice(rv.Type(), i, i)
+				for i--; 0 <= i; i-- {
+					if err = t.reflectSet(av.Index(i), vv.Index(i).Interface()); err != nil {
+						return
+					}
+				}
+				rv.Set(av)
 				return
 			}
 		}

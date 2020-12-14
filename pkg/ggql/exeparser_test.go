@@ -15,6 +15,7 @@
 package ggql_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -214,15 +215,18 @@ fragment dup on Artist { origin }`, line: 4, col: 11},
 	} {
 		_, err := root.ParseExecutableString(d.src)
 		checkNotNil(t, err, "ParseExecutableString(%s) should fail.", d.src)
-		switch e := err.(type) {
-		case *ggql.Error:
-			checkEqual(t, d.line, e.Line, "line number mismatch for %s. %s", d.src, e)
-			checkEqual(t, d.col, e.Column, "column number mismatch for %s. %s", d.src, e)
-		case ggql.Errors:
-			checkEqual(t, 1, len(e), "ParseExecutableString(%s) should return one error. %s", d.src, err)
-			e2, _ := e[0].(*ggql.Error)
+		var ge *ggql.Error
+		var ges ggql.Errors
+		switch {
+		case errors.As(err, &ge):
+			checkEqual(t, d.line, ge.Line, "line number mismatch for %s. %s", d.src, ge)
+			checkEqual(t, d.col, ge.Column, "column number mismatch for %s. %s", d.src, ge)
+		case errors.As(err, &ges):
+			checkEqual(t, 1, len(ges), "ParseExecutableString(%s) should return one error. %s", d.src, err)
+			var e2 *ggql.Error
+			errors.As(ges[0], &e2)
 			checkNotNil(t, e2, "ParseExecutableString(%s) should return a ggql.Errors with one ggql.Error or not a %T. %s",
-				d.src, e[0], e[0])
+				d.src, ges[0], ges[0])
 			checkEqual(t, d.line, e2.Line, "line number mismatch for %s. %s", d.src, e2)
 			checkEqual(t, d.col, e2.Column, "column number mismatch for %s. %s", d.src, e2)
 		default:

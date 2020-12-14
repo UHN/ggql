@@ -16,6 +16,7 @@ package ggql
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"strconv"
 	"strings"
@@ -131,7 +132,7 @@ func (p *parser) readByte() (b byte, err error) {
 			break
 		}
 	}
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		p.eof = true
 		err = nil
 		if 0 < n {

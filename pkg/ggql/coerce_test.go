@@ -35,6 +35,8 @@ type Numbers struct {
 	A int
 	B float64
 	C *Numbers
+	D []int
+	E []*Numbers
 }
 
 func (n *Numbers) sum() int {
@@ -42,11 +44,18 @@ func (n *Numbers) sum() int {
 	if n.C != nil {
 		x += n.C.sum()
 	}
+	for _, n := range n.D {
+		x += n
+	}
+	for _, n := range n.E {
+		x += n.sum()
+	}
 	return x
 }
 
 type Unum struct {
 	A uint
+	D []int
 }
 
 func (s *CSchema) Resolve(field *ggql.Field, args map[string]interface{}) (interface{}, error) {
@@ -58,17 +67,19 @@ func (s *CSchema) Resolve(field *ggql.Field, args map[string]interface{}) (inter
 
 func (q *CQuery) Resolve(field *ggql.Field, args map[string]interface{}) (interface{}, error) {
 	if field.Name == "sum" {
-		numbers, _ := args["numbers"].(*Numbers)
 		var sum int
-		if numbers != nil {
+		switch numbers := args["numbers"].(type) {
+		case *Numbers:
 			sum = numbers.sum()
+		case *Unum:
+			sum = int(numbers.A)
 		}
 		return sum, nil
 	}
 	return nil, fmt.Errorf("type Query does not have field %s", field)
 }
 
-func TestCoerceInput(t *testing.T) {
+func TestCoerceInputOk(t *testing.T) {
 	sdl := `
 type Query {
   sum(numbers: Numbers): Int
@@ -78,6 +89,8 @@ input Numbers {
   a: Int = 1
   b: Float
   c: Numbers
+  d: [Int!]
+  e: [Numbers!]
 }
 `
 	ggql.Sort = true
@@ -92,12 +105,12 @@ input Numbers {
 	err = root.RegisterType(&CQuery{}, "Numbers")
 	checkNotNil(t, err, "second register should fail")
 
-	result := root.ResolveString("{sum(numbers: {b:2 c:{a:3 b:4}})}", "", nil)
+	result := root.ResolveString("{sum(numbers: {b:2 c:{a:3 b:4} d:[5 6] e:[{a:7}]})}", "", nil)
 	var b strings.Builder
 	_ = ggql.WriteJSONValue(&b, result, 2)
 	checkEqual(t, `{
   "data": {
-    "sum": 10
+    "sum": 28
   }
 }
 `, b.String(), "result should match")
@@ -113,6 +126,7 @@ input Numbers {
   a: Int = -1
   b: Int
   c: Numbers
+  d: [String!]
 }
 `
 	ggql.Sort = true
@@ -125,7 +139,7 @@ input Numbers {
 	err = root.RegisterType(&Unum{}, "Numbers")
 	checkNil(t, err, "no error should be returned when registering a type. %s", err)
 
-	result := root.ResolveString("{sum(numbers: {b:-2})}", "", nil)
+	result := root.ResolveString("{sum(numbers: {})}", "", nil)
 	var b strings.Builder
 	_ = ggql.WriteJSONValue(&b, result, 2)
 	checkEqual(t, `{
@@ -149,11 +163,40 @@ input Numbers {
 	_ = ggql.WriteJSONValue(&b, result, 2)
 	checkEqual(t, `{
   "data": {
+    "sum": 1
+  }
+}
+`, b.String(), "result should match")
+
+	result = root.ResolveString("{sum(numbers: {a: -1})}", "", nil)
+	b.Reset()
+	_ = ggql.WriteJSONValue(&b, result, 2)
+	checkEqual(t, `{
+  "data": {
     "sum": null
   },
   "errors": [
     {
       "message": "resolve error: can not coerce a int32 into a uint at a",
+      "path": [
+        "sum",
+        "numbers"
+      ]
+    }
+  ]
+}
+`, b.String(), "result should match")
+
+	result = root.ResolveString(`{sum(numbers: {a:1 d: ["xyz"]})}`, "", nil)
+	b.Reset()
+	_ = ggql.WriteJSONValue(&b, result, 2)
+	checkEqual(t, `{
+  "data": {
+    "sum": null
+  },
+  "errors": [
+    {
+      "message": "resolve error: can not coerce a string into a int at d",
       "path": [
         "sum",
         "numbers"

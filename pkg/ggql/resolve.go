@@ -16,6 +16,7 @@ package ggql
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"reflect"
@@ -92,7 +93,8 @@ func (root *Root) ResolveExecutable(
 						v, err = ic.CoerceIn(v)
 					}
 					if err != nil {
-						if gerr, _ := err.(*Error); gerr != nil {
+						var gerr *Error
+						if errors.As(err, &gerr) {
 							gerr.Line = vd.line
 							gerr.Column = vd.col
 						} else {
@@ -357,7 +359,10 @@ func (root *Root) resolveList(
 					ea = append(ea, ea2...)
 				} else {
 					e := resWarnp(nil, "%s", err)
-					e.(*Error).in(i)
+					var ge *Error
+					if errors.As(e, &ge) {
+						ge.in(i)
+					}
 					ea = append(ea, e)
 				}
 				rlist = append(rlist, v)
@@ -602,16 +607,18 @@ func (root *Root) resolveField(
 }
 
 func (root *Root) addError(f *Field, ea []error, err error) []error {
-	switch te := err.(type) {
-	case Errors:
-		for _, e := range te {
+	var es Errors
+	var e1 *Error
+	switch {
+	case errors.As(err, &es):
+		for _, e := range es {
 			ea = root.addError(f, ea, e)
 		}
-	default:
-		if _, ok := err.(*Error); !ok {
-			err = resWarn(f.line, f.col, "%s", err)
-		}
+	case errors.As(err, &e1):
+		err = resWarn(f.line, f.col, "%s", err)
 		ea = append(ea, err)
+	default:
+		ea = append(ea, resWarn(f.line, f.col, "%s", err))
 	}
 	return ea
 }
