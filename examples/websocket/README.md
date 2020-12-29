@@ -104,8 +104,9 @@ the message. The message `data` is what was published by the server.
 
 ### Golang Server
 
-Three files are used, main.go, websoc.go, and frame.go. The websoc.go,
-and frame.go files are the implementation of the WebSocket
+Three files are used, [main.go](main.go), [websoc.go](websoc.go) and
+[frame.go](frame.go). The [websoc.go](websoc.go) and
+[frame.go](frame.go) files are the implementation of the WebSocket
 functionality.
 
 There are a few WebSocket packages available but since the protocol
