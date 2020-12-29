@@ -30,44 +30,11 @@ const (
 	opPong  = 0x0A
 )
 
-func (f frame) size() int {
+func (f frame) size() (off, plen uint64) {
 	// First byte is flags and opcode. Second is mask indicator and payload
 	// length.
 	masked := (0x80&f[1] != 0)
-	var plen uint64
 	plen = uint64(f[1] & 0x7f)
-	switch plen {
-	case 126:
-		plen = uint64(f[2])<<8 | uint64(f[3])
-		plen += 4
-	case 127:
-		plen = 0
-		for i := 8; 0 < i; i-- {
-			plen = (plen << 8) | uint64(f[2+i])
-		}
-		plen += 10
-	default:
-		plen += 2
-	}
-	if masked {
-		plen += 4
-	}
-	return int(plen)
-}
-
-func (f frame) op() int {
-	return int(0x0F & f[0])
-}
-
-func (f frame) ready() bool {
-	return 2 < len(f) && f.size() <= len(f)
-}
-
-func (f frame) payload() []byte {
-	masked := (0x80&f[1] != 0)
-	var plen uint64
-	plen = uint64(f[1] & 0x7f)
-	off := 0
 	switch plen {
 	case 126:
 		plen = uint64(f[2])<<8 | uint64(f[3])
@@ -81,17 +48,34 @@ func (f frame) payload() []byte {
 	default:
 		off = 2
 	}
+	if masked {
+		off += 4
+	}
+	return
+}
+
+func (f frame) op() int {
+	return int(0x0F & f[0])
+}
+
+func (f frame) ready() bool {
+	off, plen := f.size()
+	return 2 < len(f) && int(off+plen) <= len(f)
+}
+
+func (f frame) payload() []byte {
+	masked := (0x80&f[1] != 0)
+	off, plen := f.size()
 	if !masked {
-		return f[off : int(plen)+off]
+		return f[off : plen+off]
 	}
 	// masked
-	off += 4
 	mask := make([]byte, 4)
 	for i, b := range f[off-4 : off] {
 		mask[i] = b
 	}
 	payload := make([]byte, 0, plen)
-	for i, b := range f[off : int(plen)+off] {
+	for i, b := range f[off : plen+off] {
 		payload = append(payload, b^mask[i%4])
 	}
 	return payload

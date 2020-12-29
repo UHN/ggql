@@ -6,7 +6,6 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net"
 	"net/http"
 	"strconv"
@@ -61,7 +60,7 @@ func NewWebSoc(root *ggql.Root, req *http.Request, jack http.Hijacker) (ws *WebS
 	if err = ws.rw.Flush(); err != nil {
 		return
 	}
-	// The query to evaluate should be the firt message sent by the client.
+	// The query to evaluate should be the first message sent by the client.
 	var msg []byte
 	if msg, _, err = ws.read(); err != nil {
 		ws.Unsubscribe()
@@ -138,23 +137,21 @@ func (ws *WebSoc) Vars() map[string]interface{} {
 	return ws.vars
 }
 
-func (ws *WebSoc) read() (msg []byte, op int, err error) {
+func (ws *WebSoc) read() ([]byte, int, error) {
 	var f frame
+	var err error
 	buf := make([]byte, 4096)
 	var n int
 	for {
 		if n, err = ws.rw.Read(buf); err != nil {
-			return
+			return nil, 0, err
 		}
 		f = append(f, buf[:n]...)
 		if f.ready() {
 			break
 		}
 	}
-	op = f.op()
-	msg = f.payload()
-
-	return
+	return f.payload(), f.op(), err
 }
 
 func (ws *WebSoc) listen() {
@@ -178,7 +175,6 @@ func (ws *WebSoc) listen() {
 					ws.con = nil
 				}
 			}
-			fmt.Printf("*** listen %d %s\n", op, err)
 		}
 		if err != nil {
 			break
