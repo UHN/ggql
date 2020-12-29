@@ -7,17 +7,17 @@
       var sock;
       var url = "ws://" + document.URL.split('/')[2] + '/graphql'
       if (typeof MozWebSocket != "undefined") {
-          sock = new MozWebSocket(url);
+        sock = new MozWebSocket(url);
       } else {
-          sock = new WebSocket(url);
+        sock = new WebSocket(url);
       }
       sock.onopen = function() {
-          document.getElementById("status").textContent = "connected";
-          sock.send("Connected!")
+        document.getElementById("status").textContent = "connected";
+        sock.send("subscription{listenPrice}")
       }
       sock.onmessage = function(msg) {
-	  // TBD pull price from msg.data
-          document.getElementById("price").textContent = msg.data;
+	data = JSON.parse(msg.data)
+        document.getElementById("price").textContent = "price: " + data["data"];
       }
     </script>
   </body>

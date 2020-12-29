@@ -37,6 +37,14 @@ type Subsciption {
 }
 ```
 
-## Writing the Application
+## The Code
+
 
 TBD
+
+There are a few WebSocket packages available but since the protocol
+isn't very complicated and since I have already written a server side
+package in [Agoo](https://github.com/ohler55/agoo) it seemed better to
+keep dependencies down and expose how the WebSocket protocol
+works. The code is in the [websoc.go](websoc.go) and
+[frame.go](frame.go) files.

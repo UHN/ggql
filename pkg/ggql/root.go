@@ -1037,6 +1037,7 @@ func (root *Root) Unsubscribe(id string) (cnt int) {
 func (root *Root) AddEvent(id string, event interface{}) (cnt int, err error) {
 	vars := map[string]interface{}{}
 	var ea []error
+	var failed []*Subscription
 	root.subLock.Lock()
 	for _, s := range root.subscriptions {
 		if s.sub.Match(id) {
@@ -1045,6 +1046,7 @@ func (root *Root) AddEvent(id string, event interface{}) (cnt int, err error) {
 			cnt++
 			if err = s.sub.Send(result); err != nil {
 				ea = append(ea, err)
+				failed = append(failed, s)
 			}
 		}
 	}
@@ -1052,6 +1054,17 @@ func (root *Root) AddEvent(id string, event interface{}) (cnt int, err error) {
 	if 0 < len(ea) {
 		err = Errors(ea)
 	}
+	root.subLock.Lock()
+	for _, f := range failed {
+		for i := len(root.subscriptions) - 1; 0 <= i; i-- {
+			if f == root.subscriptions[i] {
+				root.subscriptions = append(root.subscriptions[:i], root.subscriptions[i+1:]...)
+				f.sub.Unsubscribe()
+			}
+		}
+	}
+	root.subLock.Unlock()
+
 	return
 }
 

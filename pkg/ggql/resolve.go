@@ -112,8 +112,6 @@ func (root *Root) ResolveExecutable(
 		var ea []error
 		if ea = root.resolveField(root.obj, opVars, &field, root.schema, result, 1); len(ea) == 0 {
 			found := false
-			fmt.Printf("*** subscribe - %#v\n", result)
-
 			subMap, _ := result["data"].(map[string]interface{})
 			for _, val := range subMap {
 				if sub, _ := val.(*Subscription); sub != nil {

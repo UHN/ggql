@@ -63,10 +63,12 @@ type Mutation struct {
 }
 
 // SetPrice sets the price.
-func (m *Mutation) SetPrice(p float64) (float64, error) {
+func (m *Mutation) SetPrice(p float64) float64 {
 	price = p
-	_, err := m.root.AddEvent("price", price)
-	return price, err
+	if _, err := m.root.AddEvent("price", price); err != nil {
+		fmt.Println(err.Error())
+	}
+	return price
 }
 
 // Subscription represents the subscription node in a data/resolver graph.
@@ -81,6 +83,7 @@ func (s *Subscription) Resolve(field *ggql.Field, args map[string]interface{}) (
 	case "listenPrice":
 		if ws, _ := field.Context.(*WebSoc); ws != nil {
 			ws.sub = ggql.NewSubscription(ws, field, args)
+			_ = ws.Send(price) // Sends an initial value.
 			return ws.sub, nil
 		}
 		return nil, fmt.Errorf("listenPrice subscription expected an upgradeable connection")
@@ -116,64 +119,68 @@ func handleGraphQL(w http.ResponseWriter, req *http.Request, root *ggql.Root) {
 	if jvars := req.URL.Query().Get("variables"); 0 < len(jvars) {
 		err = json.Unmarshal([]byte(jvars), &vars)
 	}
+	var ws *WebSoc
+	if err == nil && strings.EqualFold(req.Header.Get("Upgrade"), "WebSocket") {
+		if jack, _ := w.(http.Hijacker); jack != nil {
+			ws, err = NewWebSoc(root, req, jack)
+		}
+	}
 	// Since the connection has to be hijacked and handed over to the GraphQL
 	// resolver a bit more code is required. First an ggql.Executable is
 	// created. That executable is then prepared if the connection is
 	// upgradeable. Finally the executable is evaluated.
 	if err == nil {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Max-Age", "172800")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		if ws == nil {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Headers", "*")
+			w.Header().Set("Access-Control-Max-Age", "172800")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 
-		switch req.Method {
-		case "GET":
-			exe, err = root.ParseExecutableReader(strings.NewReader(req.URL.Query().Get("query")))
-		case "POST":
-			defer func() { _ = req.Body.Close() }()
-			var contentType string
-			if cta := req.Header["Content-Type"]; 0 < len(cta) {
-				contentType = cta[0]
-			}
-			switch contentType {
-			case "application/graphql":
-				exe, err = root.ParseExecutableReader(req.Body)
-			case "application/json":
-				var jmap map[string]interface{}
-				var data []byte
-				if data, err = ioutil.ReadAll(req.Body); err == nil {
-					err = json.Unmarshal(data, &jmap)
+			switch req.Method {
+			case "GET":
+				exe, err = root.ParseExecutableReader(strings.NewReader(req.URL.Query().Get("query")))
+			case "POST":
+				defer func() { _ = req.Body.Close() }()
+				var contentType string
+				if cta := req.Header["Content-Type"]; 0 < len(cta) {
+					contentType = cta[0]
 				}
-				if err == nil {
-					if str, _ := jmap["operationName"].(string); 0 < len(str) {
-						op = str
+				switch contentType {
+				case "application/graphql":
+					exe, err = root.ParseExecutableReader(req.Body)
+				case "application/json":
+					var jmap map[string]interface{}
+					var data []byte
+					if data, err = ioutil.ReadAll(req.Body); err == nil {
+						err = json.Unmarshal(data, &jmap)
 					}
-					vm, _ := jmap["variables"].(map[string]interface{})
-					for k, v := range vm {
-						if vars[k] == nil {
-							vars[k] = v
+					if err == nil {
+						if str, _ := jmap["operationName"].(string); 0 < len(str) {
+							op = str
+						}
+						vm, _ := jmap["variables"].(map[string]interface{})
+						for k, v := range vm {
+							if vars[k] == nil {
+								vars[k] = v
+							}
+						}
+						if str, _ := jmap["query"].(string); 0 < len(str) {
+							exe, err = root.ParseExecutableString(str)
 						}
 					}
-					if str, _ := jmap["query"].(string); 0 < len(str) {
-						exe, err = root.ParseExecutableString(str)
-					}
+				default:
+					err = fmt.Errorf("%s is not a supported Content-Type", contentType)
 				}
+			case "OPTIONS":
+				return
 			default:
-				err = fmt.Errorf("%s is not a supported Content-Type", contentType)
+				err = fmt.Errorf("%s is not a supported method", req.Method)
 			}
-		case "OPTIONS":
-			return
-		default:
-			err = fmt.Errorf("%s is not a supported method", req.Method)
-		}
-	}
-	hijacked := false
-	if err == nil && req.Header.Get("Upgrade") == "WebSocket" {
-		if jack, _ := w.(http.Hijacker); jack != nil {
-			var ws *WebSoc
-			if ws, err = NewWebSoc(jack); err == nil {
+		} else {
+			op = ws.Op()
+			vars = ws.Vars()
+			if exe, err = root.ParseExecutableString(ws.Query()); err == nil {
 				prepExe(exe, ws)
-				hijacked = true
 			}
 		}
 	}
@@ -182,7 +189,7 @@ func handleGraphQL(w http.ResponseWriter, req *http.Request, root *ggql.Root) {
 			result = map[string]interface{}{"data": nil}
 		}
 	}
-	if hijacked {
+	if ws != nil {
 		return
 	}
 	if err != nil {
@@ -211,6 +218,7 @@ func main() {
 		fmt.Printf("*-*-* Failed to build schema. %s\n", err)
 		os.Exit(1)
 	}
+	// Sometimes it's nice to get back the schema in a simple request.
 	http.HandleFunc("/graphql/schema", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		full := strings.EqualFold(q.Get("full"), "true")
@@ -218,14 +226,16 @@ func main() {
 		sdl := root.SDL(full, desc)
 		_, _ = w.Write([]byte(sdl))
 	})
+	// The primary endpoint.
 	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
 		handleGraphQL(w, r, root)
 	})
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})
+	// The page with the Javascript that makes a WebSocket call.
 	http.HandleFunc("/price.html", func(w http.ResponseWriter, r *http.Request) {
 		content, _ := ioutil.ReadFile("price.html")
 		_, _ = w.Write(content)
 	})
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})
 
 	if err := http.ListenAndServe(":3000", nil); err != nil {
 		fmt.Printf("*-*-* Server failed. %s\n", err)
