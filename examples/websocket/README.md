@@ -5,9 +5,9 @@
 
 Pushing data to a browser makes for lively up-to-date page. GraphQL
 provides many advantages as well but we will not get into that
-here. This example brings together WebSockets and GraphQL making use
-of GraphQL subscriptions. This example is written in Go using just the
-[GGql](https://github.com/UHN/ggql) package.
+here. This example brings together WebSockets and GraphQL through the
+use of GraphQL subscriptions. This example is written in Go using just
+the [GGql](https://github.com/UHN/ggql) package.
 
 This example assumes familiarity with the GGql package. Simpler, first
 time examples for using GGql are:
@@ -19,10 +19,9 @@ time examples for using GGql are:
 
 ## Define the API
 
-As always, a GraphQL application needs a GraphQL schema. For
-simplicity a very simple API is provided that allows getting, setting,
-and subscribing to changes in a price. The price is just a number and
-nothing more.
+As always, a GraphQL application needs a GraphQL schema. A very simple
+API is provided that allows getting, setting, and subscribing to
+changes in a price. The price is just a number and nothing more.
 
 ```graphql
 type Query {
@@ -42,14 +41,14 @@ type Subsciption {
 
 The players involved are the go application (of course), a browser for
 viewing updated prices, and a terminal for changing the price. The
-scenario is not complicated.
+scenario is just 3 steps.
 
  1. Start the application.
  2. Open the browser for URL: http://localhost:3000/price.html
  3. Curl in a price change with a mutation.
 
 The price change is then pushed to the browser and the new price
-displayed. Multiple browsers and multiple mutation calls are all
+displayed. Multiple browsers and multiple mutation calls are
 supported.
 
 In this case a single float is the data being pushed. It could just as
@@ -144,8 +143,8 @@ type Subscription struct {
 }
 ```
 
-The price is just a global. It's just an example. A more expansive
-application might use a cache or database.
+The price is just a global variable. A more expansive application
+might use a cache or database.
 
 ``` golang
 var price = 1.1
@@ -196,7 +195,7 @@ func (s *Subscription) Resolve(field *ggql.Field, args map[string]interface{}) (
 
 The HTTP handler for the `/graphql` endpoint needs to handle GET and
 POST requests as well as WebSocket upgrade requests. Errors, if they
-occur, are returned using the ResponseWriter so instead of returing on
+occur, are returned using the ResponseWriter so instead of returning on
 error the flow of the function skips blocks of code if `err` if not
 nil. Early in the handler a check is made for whether the connection
 should be hijacked or not. That check is whether the ResponseWriter is
