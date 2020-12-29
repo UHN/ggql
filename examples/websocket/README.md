@@ -222,8 +222,10 @@ func handleGraphQL(w http.ResponseWriter, req *http.Request, root *ggql.Root) {
 	}
 ```
 
-The code in this example is different than the other examples in that parsing and execution of a query is broken into two steps so that
-
+The code in this example is different than the other examples in that
+parsing and execution of a query is broken into two steps so that the
+WebSoc instance can be passed to the subscription call. Otherwise the
+GET and POST handling is similar to the other examples.
 
 ``` golang
 	if err == nil {
@@ -273,6 +275,14 @@ The code in this example is different than the other examples in that parsing an
 			default:
 				err = fmt.Errorf("%s is not a supported method", req.Method)
 			}
+```
+
+For a subscription the parsed `ggql.Executable` needs to be prepared
+but walking the executable operations and fields and setting the field
+Context with the WebSoc instance so that when the `Resolve()` function
+is called the WebSoc is available for use.
+
+``` golang
 		} else {
 			op = ws.Op()
 			vars = ws.Vars()
@@ -281,14 +291,59 @@ The code in this example is different than the other examples in that parsing an
 			}
 		}
 	}
+```
+
+Stepping out of the handler for a moment and looking at the recursive
+prepare functions we see it is composed of two functions. Once walks
+the operations in the executable and the other recurses through the
+selections. The context on every field is then set to the WebSoc
+instance. Not every field needs to have the Context set but it was
+easier to set all for the example instead of checking path and field
+name.
+
+``` golang
+func prepExe(exe *ggql.Executable, ws *WebSoc) {
+	for _, op := range exe.Ops {
+		for _, sel := range op.SelectionSet() {
+			prepSelection(sel, ws)
+		}
+	}
+}
+
+func prepSelection(selection ggql.Selection, ws *WebSoc) {
+	if field, _ := selection.(*ggql.Field); field != nil {
+		field.Context = ws
+	}
+	for _, sel := range selection.SelectionSet() {
+		prepSelection(sel, ws)
+	}
+}
+```
+
+Back to the handler. With the operation and vars already set the
+resolver functions can be called.
+
+``` golang
 	if err == nil {
 		if result, err = root.ResolveExecutable(exe, op, vars); result == nil {
 			result = map[string]interface{}{"data": nil}
 		}
 	}
+```
+
+If the connection has been upgraded a response should not be written
+as the connection has been hijacked so just return.
+
+``` golang
 	if ws != nil {
 		return
 	}
+```
+
+For a non-hijacked request the results are formed and written as in
+other examples.
+
+``` golang
 	if err != nil {
 		if result == nil {
 			result = map[string]interface{}{
@@ -306,9 +361,59 @@ The code in this example is different than the other examples in that parsing an
 }
 ```
 
+Putting it all together the resolvers are setup and the schema SDL
+used to create a GGql root object. The Mutation and Subscription
+resolvers are given the root for use later and then it is on to the
+HTTP server setup.
 
+``` golang
+func main() {
+	ggql.Sort = true
+	schema := &Schema{}
+	root := ggql.NewRoot(schema)
+	schema.Mutation.root = root
+	schema.Subscription.root = root
+	if err := root.ParseString(marketSDL); err != nil {
+		fmt.Printf("*-*-* Failed to build schema. %s\n", err)
+		os.Exit(1)
+	}
+```
 
-TBD
+GGql has a feature that allows the schema to be returned without
+building a nested introspection query. A handler for that is
+registered with just a few lines of code.
+
+``` golang
+	http.HandleFunc("/graphql/schema", func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		full := strings.EqualFold(q.Get("full"), "true")
+		desc := strings.EqualFold(q.Get("desc"), "true")
+		sdl := root.SDL(full, desc)
+		_, _ = w.Write([]byte(sdl))
+	})
+```
+
+The GraphQL handler is registered along with a handler to serve the
+price.html file and then the server is started.
+
+``` golang
+
+	// The primary endpoint.
+	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
+		handleGraphQL(w, r, root)
+	})
+	// The page with the Javascript that makes a WebSocket call.
+	http.HandleFunc("/price.html", func(w http.ResponseWriter, r *http.Request) {
+		content, _ := ioutil.ReadFile("price.html")
+		_, _ = w.Write(content)
+	})
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})
+
+	if err := http.ListenAndServe(":3000", nil); err != nil {
+		fmt.Printf("*-*-* Server failed. %s\n", err)
+	}
+}
+```
 
 #### [websoc.go](websoc.go)
 
