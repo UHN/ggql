@@ -1,7 +1,7 @@
 # WebSockets with GraphQL in Go the Easy Way
 
-| [Home](../../README.md) | [Examples](../README.md) |
-| ----------------------- | ------------------------ |
+| [Home](../../README.md) |
+| ----------------------- |
 
 Pushing data to a browser makes for lively up-to-date page. GraphQL
 provides many advantages as well but we will not get into that
@@ -12,9 +12,10 @@ of GraphQL subscriptions. This example is written in Go using just the
 This example assumes familiarity with the GGql package. Simpler, first
 time examples for using GGql are:
 
- - [Reflection](../reflection/README.md)
- - [Interface](../interface/README.md)
- - [Root](../root/README.md)
+ - [Examples](../README.md)
+   - [Reflection](../reflection/README.md)
+   - [Interface](../interface/README.md)
+   - [Root](../root/README.md)
 
 ## Define the API
 
