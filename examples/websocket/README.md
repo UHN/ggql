@@ -119,8 +119,47 @@ server and the resolvers.
 
 #### [main.go](main.go)
 
+TBD
 
 #### [websoc.go](websoc.go)
 
+TBD
 
 #### [frame.go](frame.go)
+
+WebSockets makes use of frames to package payloads for exchange
+between clients and servers. The frame consists of a headers and a
+payload. The header includes an opcode such as for text, close, ping,
+pong, and others. Next is an encoded length that varies in size
+depending on length to be encoded. Following the length is the
+optional mask which is followed by the payload.
+
+The frame type is a `[]byte` since only methods are needed to extract
+information from a frame. Methods include getting the various parts of
+the frame such as the payload, opcode, and expected length. A function
+is also included to create a frame for a payload.
+
+The format of a frame is defined by [RFC
+6455](https://tools.ietf.org/html/rfc6455) which includes this
+diagram.
+
+```
+   0                   1                   2                   3
+   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  +-+-+-+-+-------+-+-------------+-------------------------------+
+  |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+  |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+  |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+  | |1|2|3|       |K|             |                               |
+  +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+  |     Extended payload length continued, if payload len == 127  |
+  + - - - - - - - - - - - - - - - +-------------------------------+
+  |                               |Masking-key, if MASK set to 1  |
+  +-------------------------------+-------------------------------+
+  | Masking-key (continued)       |          Payload Data         |
+  +-------------------------------- - - - - - - - - - - - - - - - +
+  :                     Payload Data continued ...                :
+  + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+  |                     Payload Data continued ...                |
+  +---------------------------------------------------------------+
+```
