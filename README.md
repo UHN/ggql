@@ -3,7 +3,7 @@
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
 
-[![License][License-Image]][License-Url] [![Build Status][Travis-Image]][Travis-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] [![go.dev reference][Godoc-Image]][Godoc-Url] [![Coverage][Coverage-Image]][Coverage-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url] 
+[![License][License-Image]][License-Url] [![Build Status][Travis-Image]][Travis-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] [![go.dev reference][Godoc-Image]][Godoc-Url] [![Coverage][Coverage-Image]][Coverage-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]
 
 ## Features
 
@@ -25,6 +25,7 @@ The examples provide the best explanation for how to use the package.
    - [Reflection Resolver Example](examples/reflection/README.md)
    - [Interface Resolver Example](examples/interface/README.md)
    - [Root Resolver Example](examples/root/README.md)
+   - [WebSocket Subscription Example](examples/websocket/README.md)
 
 ## Installation
 

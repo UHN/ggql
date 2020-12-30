@@ -1,0 +1,24 @@
+<html>
+  <body>
+    <p id="status"> ... </p>
+    <p id="price"> ... waiting ... </p>
+
+    <script type="text/javascript">
+      var sock;
+      var url = "ws://" + document.URL.split('/')[2] + '/graphql'
+      if (typeof MozWebSocket != "undefined") {
+        sock = new MozWebSocket(url);
+      } else {
+        sock = new WebSocket(url);
+      }
+      sock.onopen = function() {
+        document.getElementById("status").textContent = "connected";
+        sock.send("subscription{listenPrice}")
+      }
+      sock.onmessage = function(msg) {
+	data = JSON.parse(msg.data)
+        document.getElementById("price").textContent = "price: " + data["data"];
+      }
+    </script>
+  </body>
+</html>

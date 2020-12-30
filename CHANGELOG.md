@@ -3,6 +3,16 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.5] - 2020-12-30
+
+### Fixed
+
+- An error on sending events now unsubscribes a subscriber.
+
+### Added
+
+- Added a WebSocket example.
+
 ## [1.2.4] - 2020-12-12
 
 ### Fixed
