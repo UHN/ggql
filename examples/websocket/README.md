@@ -54,6 +54,26 @@ supported.
 In this case a single float is the data being pushed. It could just as
 easily be a more complex object.
 
+## Running
+
+To run the example start in a terminal and type in:
+
+```
+$ go run *.go
+```
+
+That starts the server listening on port 3000. Next open a browser and
+go to http://localhost:3000/price.html. The page should show that the
+browser is connected with an initial price.
+
+In a second terminal call the setPrice mutation.
+
+```
+curl -w “\n” -H “Content-Type: application/graphql” -d ‘mutation {setPrice(price:1.23)}’ :3000/graphql
+```
+
+The price on the browser page should change to the price provided.
+
 ## The Code
 
 For a WebSocket demonstration there need to be a client and a

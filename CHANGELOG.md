@@ -3,7 +3,7 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
-## [1.2.5] - 2020-12-29
+## [1.2.5] - 2020-12-30
 
 ### Fixed
 
