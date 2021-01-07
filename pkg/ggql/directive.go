@@ -100,6 +100,7 @@ func (t *Directive) Validate(root *Root) (errs []error) {
 		}
 	}
 	for _, a := range t.args.list {
+		errs = append(errs, validateName(a.core, "argument", a.N, a.line, a.col)...)
 		if co, _ := a.Type.(InCoercer); co != nil {
 			if a.Default != nil {
 				if v, err := co.CoerceIn(a.Default); err != nil {

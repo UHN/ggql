@@ -192,7 +192,10 @@ func (p *sdlParser) readEnumValue() (ev *EnumValue, err error) {
 	if desc, err = p.readDesc(); err == nil {
 		token, err = p.readToken()
 	}
-	if err == nil && 0 < len(token) {
+	if err == nil && len(token) == 0 {
+		err = fmt.Errorf("%w, invalid enum value name at %d:%d", ErrParse, p.line, p.col)
+	}
+	if err == nil {
 		ev = &EnumValue{Value: Symbol(token), Description: desc, line: p.line, col: p.col - len(token) - 1}
 		var du *DirectiveUse
 		for {

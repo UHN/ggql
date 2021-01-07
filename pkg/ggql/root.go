@@ -368,12 +368,12 @@ func (root *Root) validate() error {
 	var errs []error
 
 	for _, t := range root.types.list {
-		errs = append(errs, root.validateName(t)...)
+		errs = append(errs, root.validateTypeName("type", t)...)
 		errs = append(errs, root.validateDirUses(t)...)
 		errs = append(errs, t.Validate(root)...)
 	}
 	for _, t := range root.dirs.list {
-		errs = append(errs, root.validateName(t)...)
+		errs = append(errs, root.validateTypeName("directive", t)...)
 		errs = append(errs, root.validateDirUses(t)...)
 		errs = append(errs, t.Validate(root)...)
 	}
@@ -383,7 +383,34 @@ func (root *Root) validate() error {
 	return nil
 }
 
-func (root *Root) validateName(t Type) (errs []error) {
+// Checks that name satisfies the requirements specified in
+// https://spec.graphql.org/June2018/#Name.
+// If allowReserved is false an error is returned when name has a '__' prefix.
+func validateName(allowReserved bool, typeName, name string, line, col int) (errs []error) {
+	if len(name) == 0 {
+		errs = append(errs, fmt.Errorf("%w, a %s name can not be blank at %d:%d",
+			ErrValidation, typeName, line, col))
+	} else {
+		for _, b := range name {
+			if charMap[b] != tokenChar {
+				errs = append(errs, fmt.Errorf("%w, %s is not a valid %s name at %d:%d",
+					ErrValidation, name, typeName, line, col))
+				break
+			}
+		}
+		if !allowReserved && strings.HasPrefix(name, "__") {
+			errs = append(errs, fmt.Errorf("%w, %s is not a valid %s name, it begins with '__' at %d:%d",
+				ErrValidation, name, typeName, line, col))
+		}
+		if '0' <= name[0] && name[0] <= '9' {
+			errs = append(errs, fmt.Errorf("%w, %s is not a valid %s name, it begins with a number at %d:%d",
+				ErrValidation, name, typeName, line, col))
+		}
+	}
+	return
+}
+
+func (root *Root) validateTypeName(typeName string, t Type) (errs []error) {
 	name := t.Name()
 	if st, _ := t.(*Schema); st != nil {
 		if 0 < len(name) {
@@ -391,26 +418,7 @@ func (root *Root) validateName(t Type) (errs []error) {
 				ErrValidation, st.line, st.col))
 		}
 	} else {
-		if len(name) == 0 {
-			errs = append(errs, fmt.Errorf("%w, a type name can not be blank at %d:%d",
-				ErrValidation, t.Line(), t.Column()))
-		} else {
-			for _, b := range name {
-				if charMap[b] != tokenChar {
-					errs = append(errs, fmt.Errorf("%w, %s is not a valid name at %d:%d",
-						ErrValidation, name, t.Line(), t.Column()))
-					break
-				}
-			}
-			if '0' <= name[0] && name[0] <= '9' {
-				errs = append(errs, fmt.Errorf("%w, %s is not a valid name, it begins with a number at %d:%d",
-					ErrValidation, name, t.Line(), t.Column()))
-			}
-			if !t.Core() && strings.HasPrefix(name, "__") {
-				errs = append(errs, fmt.Errorf("%w, %s is not a valid name, it begins with '__' at %d:%d",
-					ErrValidation, name, t.Line(), t.Column()))
-			}
-		}
+		errs = append(errs, validateName(t.Core(), typeName, name, t.Line(), t.Column())...)
 	}
 	return
 }

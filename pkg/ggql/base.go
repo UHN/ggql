@@ -106,15 +106,9 @@ func (b *Base) Validate(root *Root) (errs []error) {
 func (b *Base) validateFieldDefs(typeName string, fields *fieldList) (errs []error) {
 	if 0 < fields.Len() { // must have at least one field
 		for _, f := range fields.list {
-			if strings.HasPrefix(f.Name(), "__") {
-				errs = append(errs, fmt.Errorf("%w, %s is not a valid field name, it begins with '__' at %d:%d",
-					ErrValidation, f.Name(), f.line, f.col))
-			}
+			errs = append(errs, validateName(f.core, "field", f.N, f.line, f.col)...)
 			for _, a := range f.args.list {
-				if strings.HasPrefix(a.Name(), "__") {
-					errs = append(errs, fmt.Errorf("%w, %s is not a valid argument name, it begins with '__' at %d:%d",
-						ErrValidation, a.Name(), a.line, a.col))
-				}
+				errs = append(errs, validateName(a.core, "argument", a.N, a.line, a.col)...)
 				if !IsInputType(a.Type) {
 					errs = append(errs, fmt.Errorf("%w, argument %s of %s must be an input type at %d:%d",
 						ErrValidation, a.Name(), f.Name(), a.line, a.col))
