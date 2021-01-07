@@ -64,8 +64,8 @@ func TestRootValidateName(t *testing.T) {
 	valTest(t, []*valTestData{}, true)
 
 	valTest(t, []*valTestData{
-		{sdl: "scalar 1Scale", expect: "1Scale is not a valid name, it begins with a number at 1:8"},
-		{sdl: "scalar __Scale", expect: "__Scale is not a valid name, it begins with '__' at 1:8"},
+		{sdl: "scalar 1Scale", expect: "1Scale is not a valid type name, it begins with a number at 1:8"},
+		{sdl: "scalar __Scale", expect: "__Scale is not a valid type name, it begins with '__' at 1:8"},
 	}, false)
 	root := ggql.NewRoot(nil)
 
@@ -73,10 +73,10 @@ func TestRootValidateName(t *testing.T) {
 	checkValErr(t, err, "schema with name", "a schema can not have a name")
 
 	err = root.AddTypes(&ggql.Object{})
-	checkValErr(t, err, "horse with no name", "a type name can not be blank")
+	checkValErr(t, err, "horse with no name", "a type name can not be blank", " must have at least one field")
 
 	err = root.AddTypes(&ggql.Object{Base: ggql.Base{N: "My-Name"}})
-	checkValErr(t, err, "invalid name", "My-Name is not a valid name")
+	checkValErr(t, err, "invalid name", "My-Name is not a valid type name", "My-Name must have at least one field")
 }
 
 func TestRootValidateDirUse(t *testing.T) {
@@ -240,4 +240,46 @@ func TestRootValidateSchema(t *testing.T) {
 	valTest(t, []*valTestData{
 		{sdl: "schema { bad: Int }", expect: "field bad on Schema not allowed at 1:10"},
 	}, false)
+}
+
+func TestRootValidateNames(t *testing.T) {
+	samples := []string{
+		"type %s { id: ID }",
+		"type X { %s: ID }",
+		"type X { y(%s: String): String }",
+		"interface %s { id: ID }",
+		"interface X { %s: ID }",
+		"type X { id: ID } union %s = X",
+		"scalar %s",
+		"enum %s { FOO }",
+		"enum SomeEnum { %s }",
+		"input %s { id: ID }",
+		"input X { %s: ID }",
+		"directive @%s on SCALAR",
+		"directive @X(%s: Int) on SCALAR",
+	}
+	// name -> valid?
+	names := map[string]bool{
+		"foo":    true,
+		"f123":   true,
+		"_xyz":   true,
+		"_00abc": true,
+		"0abc":   false,
+		"%":      false,
+		"'":      false,
+		"/":      false,
+		"__abc":  false,
+	}
+	for _, s := range samples {
+		for n, isValid := range names {
+			root := ggql.NewRoot(nil)
+			sdl := fmt.Sprintf(s, n)
+			err := root.ParseString(sdl)
+			if isValid {
+				checkNil(t, err, "expected no error but got err %q for sdl: %s\n", err, sdl)
+			} else {
+				checkNotNil(t, err, "expected error but got none for sdl: %s\n", sdl)
+			}
+		}
+	}
 }

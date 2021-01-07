@@ -224,10 +224,7 @@ func (t *Input) reflectSet(rv reflect.Value, v interface{}) (err error) {
 func (t *Input) Validate(root *Root) (errs []error) {
 	if 0 < t.fields.Len() { // must have at least one field
 		for _, f := range t.fields.list {
-			if strings.HasPrefix(f.Name(), "__") {
-				errs = append(errs, fmt.Errorf("%w, %s is not a valid field name, it begins with '__' at %d:%d",
-					ErrValidation, f.Name(), f.line, f.col))
-			}
+			errs = append(errs, validateName(f.core, "field", f.N, f.line, f.col)...)
 			if !IsInputType(f.Type) {
 				errs = append(errs, fmt.Errorf("%w, %s does not return an input type at %d:%d",
 					ErrValidation, f.Name(), f.line, f.col))

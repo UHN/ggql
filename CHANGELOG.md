@@ -3,6 +3,13 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.6] - 2021-01-07
+
+### Fixed
+
+- Infinite loop in parser when enum contains singular invalid enum value name.
+- Name validation on fields, arguments, enums/values
+
 ## [1.2.5] - 2020-12-30
 
 ### Fixed
@@ -17,7 +24,7 @@ versioning.
 
 ### Fixed
 
-- List in complext types are now extracted.
+- List in complex types are now extracted.
 
 ## [1.2.3] - 2020-12-08
 

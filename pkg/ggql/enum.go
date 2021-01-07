@@ -85,6 +85,7 @@ func (t *Enum) Extend(x Type) error {
 
 // Validate a type.
 func (t *Enum) Validate(root *Root) (errs []error) {
+	errs = append(errs, root.validateTypeName("enum", t)...)
 	// All members must be Objects and there must be at least one member.
 	if 0 < t.values.Len() {
 		for _, ev := range t.values.list {
@@ -92,6 +93,8 @@ func (t *Enum) Validate(root *Root) (errs []error) {
 			case Symbol("true"), Symbol("false"), Symbol("null"):
 				errs = append(errs, fmt.Errorf("%w, %s is not a valid enum value for enum %s at %d:%d",
 					ErrValidation, ev.Value, t.Name(), ev.line, ev.col))
+			default:
+				errs = append(errs, validateName(t.core, "enum value", string(ev.Value), ev.line, ev.col)...)
 			}
 			for _, du := range ev.Directives {
 				errs = append(errs, root.validateDirUse(t.Name()+"."+string(ev.Value), Locate(ev), du)...)
