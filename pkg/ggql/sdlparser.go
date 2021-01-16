@@ -169,11 +169,7 @@ func (p *sdlParser) readEnum(desc string) (Type, error) {
 			if err == nil {
 				ev, err = p.readEnumValue()
 				if err == nil {
-					if ev == nil {
-						break
-					} else {
-						err = enum.values.add(ev)
-					}
+					err = enum.values.add(ev)
 				}
 			}
 			if err != nil {

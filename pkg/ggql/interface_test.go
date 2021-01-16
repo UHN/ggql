@@ -88,6 +88,7 @@ interface Inty {
 	checkEqual(t, expectRoot, actual, "Interface SDL() mismatch")
 	checkEqual(t, expectStr, inty.String(), "Interface String() mismatch")
 	checkEqual(t, 8, inty.Rank(), "Interface Rank() mismatch")
+	checkEqual(t, len(inty.Fields()), 2, "Interface has two fields")
 	checkEqual(t, "Some interface.", inty.Description(), "Interface Description() mismatch")
 	checkEqual(t, 0, len(inty.Directives()), "Interface Directives() mismatch")
 

@@ -3,6 +3,14 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.7] - 2021-01-16
+
+### Fixed
+- Validation bug when checking an object's list/non-null field argument matches
+  the type defined by the interface the object is implementing.
+- Validation bug where an object field type is a Non-Null variant of a valid
+  sub-type of the interface field type the object is implementing.
+
 ## [1.2.6] - 2021-01-07
 
 ### Fixed

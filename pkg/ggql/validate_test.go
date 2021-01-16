@@ -196,6 +196,10 @@ func TestRootValidateObject(t *testing.T) {
 			expect: "field a return type Float is not a sub-type of Int at 1:49",
 		},
 		{
+			sdl:    `interface Imp {a: [Int]} type Obj implements Imp {a: [Float]}`,
+			expect: "interface Imp not satisfied, field a return type [Float] is not a sub-type of [Int] at 1:51",
+		},
+		{
 			sdl:    `interface Imp {a(x: Int): Int} type Obj implements Imp {a: Int}`,
 			expect: "argument a to x missing at 1:57",
 		},
@@ -205,15 +209,15 @@ func TestRootValidateObject(t *testing.T) {
 		},
 		{
 			sdl:    `interface Imp {a(x: Int): Int} type Obj implements Imp {a(x: Float): Int}`,
-			expect: "argument return for x does not match interface at 1:59",
+			expect: "interface Imp not satisfied, argument return type for x does not match at 1:59",
 		},
 		{
 			sdl:    `interface Imp {a: Int} type Obj implements Imp {a(y: Int!): Int}`,
-			expect: "additional argument y to interface field must be optional at 1:51",
+			expect: "interface Imp not satisfied, additional argument y to field a must be optional at 1:51",
 		},
 		{
 			sdl:    `interface Imp {a: Float!} type Obj implements Imp {a: Int!}`,
-			expect: "field a return type Int! is not a sub-type of Float! at 1:52",
+			expect: "interface Imp not satisfied, field a return type Int! is not a sub-type of Float! at 1:52",
 		},
 		{
 			sdl:    `interface Imp { a: Imp, b: Int } type Obj implements Imp {a: Obj}`,
@@ -282,4 +286,28 @@ func TestRootValidateNames(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestRootValidateObjectFieldArgs(t *testing.T) {
+	// Test that non-null and list field argument types are validated against an
+	// interface correctly.
+	sdl := `interface Inty {
+  field(arg: String!): Int
+  field2(arg: [String!]!): Int
+}
+type Obj implements Inty {
+  field(arg: String!): Int
+  field2(arg: [String!]!): Int
+}
+`
+	root := ggql.NewRoot(nil)
+	err := root.ParseString(sdl)
+	checkNil(t, err, "expected no error but got %q", err)
+}
+
+func TestRootValidateObjectInterface(t *testing.T) {
+	sdl := "interface Inty { a: String } type Obj implements Inty { a: String! }"
+	root := ggql.NewRoot(nil)
+	err := root.ParseString(sdl)
+	checkNil(t, err, "expected no error but got %q", err)
 }
