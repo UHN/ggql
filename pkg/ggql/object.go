@@ -168,6 +168,11 @@ func (t *Object) isSubType(target, sub Type) bool {
 	if typeEqual(target, sub) {
 		return true
 	}
+	if st, ok := sub.(*NonNull); ok && typeEqual(target, st.Base) {
+		// As a special case, if the interface expects type T and the
+		// implementation is T!, the implementation satisfies the interface.
+		return true
+	}
 	switch tt := target.(type) {
 	case *Union:
 		for _, m := range tt.Members {
