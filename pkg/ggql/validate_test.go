@@ -205,11 +205,11 @@ func TestRootValidateObject(t *testing.T) {
 		},
 		{
 			sdl:    `interface Imp {a(x: Int): Int} type Obj implements Imp {a(x: Float): Int}`,
-			expect: "argument return for x does not match interface at 1:59",
+			expect: "interface Imp not satisfied, argument return type for x does not match at 1:59",
 		},
 		{
 			sdl:    `interface Imp {a: Int} type Obj implements Imp {a(y: Int!): Int}`,
-			expect: "additional argument y to interface field must be optional at 1:51",
+			expect: "interface Imp not satisfied, additional argument y to field a must be optional at 1:51",
 		},
 		{
 			sdl:    `interface Imp {a: Float!} type Obj implements Imp {a: Int!}`,
@@ -282,4 +282,21 @@ func TestRootValidateNames(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestRootValidateObjectFieldArgs(t *testing.T) {
+	// Test that non-null and list field argument types are validated against an
+	// interface correctly.
+	sdl := `interface Inty {
+  field(arg: String!): Int
+  field2(arg: [String!]!): Int
+}
+type Obj implements Inty {
+  field(arg: String!): Int
+  field2(arg: [String!]!): Int
+}
+`
+	root := ggql.NewRoot(nil)
+	err := root.ParseString(sdl)
+	checkNil(t, err, "expected no error but got %q", err)
 }

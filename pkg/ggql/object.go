@@ -132,54 +132,53 @@ func (t *Object) validateInterface(i *Interface) (errs []error) {
 				ErrValidation, t.Name(), name, i.Name(), t.line, t.col))
 			continue
 		}
-		errs = append(errs, t.validateField(fo, fi)...)
+		errs = append(errs, t.validateField(fo, fi, i.Name())...)
 	}
 	return
 }
 
-func (t *Object) validateField(fo, fi *FieldDef) (errs []error) {
+// validateField checks the object FieldDef against the interface FieldDef.
+func (t *Object) validateField(fo, fi *FieldDef, iName string) (errs []error) {
 	if !t.isSubType(fi.Type, fo.Type) {
-		errs = append(errs, fmt.Errorf("%w, field %s return type %s is not a sub-type of %s at %d:%d",
-			ErrValidation, fi.Name(), fo.Type.Name(), fi.Type.Name(), fo.line, fo.col))
+		errs = append(errs, fmt.Errorf("%w, interface %s not satisfied, field %s return type %s is not a sub-type of %s at %d:%d",
+			ErrValidation, iName, fi.Name(), fo.Type.Name(), fi.Type.Name(), fo.line, fo.col))
 	}
 	for _, ai := range fi.args.list {
 		if ao := fo.getArg(ai.Name()); ao == nil {
-			errs = append(errs, fmt.Errorf("%w, argument %s to %s missing at %d:%d",
-				ErrValidation, fi.Name(), ai.Name(), fo.line, fo.col))
+			errs = append(errs, fmt.Errorf("%w, interface %s not satisfied, argument %s to %s missing at %d:%d",
+				ErrValidation, iName, fi.Name(), ai.Name(), fo.line, fo.col))
 		}
 	}
 	for _, ao := range fo.args.list {
 		ai := fi.getArg(ao.Name())
 		if ai == nil {
 			if _, ok := ao.Type.(*NonNull); ok {
-				errs = append(errs, fmt.Errorf("%w, additional argument %s to interface field must be optional at %d:%d",
-					ErrValidation, ao.Name(), ao.line, ao.col))
+				errs = append(errs, fmt.Errorf("%w, interface %s not satisfied, additional argument %s to field %s must be optional at %d:%d",
+					ErrValidation, iName, ao.Name(), fo.Name(), ao.line, ao.col))
 			}
-		} else {
-			if ai.Type != ao.Type {
-				errs = append(errs, fmt.Errorf("%w, argument return for %s does not match interface at %d:%d",
-					ErrValidation, ai.Name(), ao.line, ao.col))
-			}
+		} else if !typeEqual(ai.Type, ao.Type) {
+			errs = append(errs, fmt.Errorf("%w, interface %s not satisfied, argument return type for %s does not match at %d:%d",
+				ErrValidation, iName, ai.Name(), ao.line, ao.col))
 		}
 	}
 	return
 }
 
 func (t *Object) isSubType(target, sub Type) bool {
-	if target == sub {
+	if typeEqual(target, sub) {
 		return true
 	}
 	switch tt := target.(type) {
 	case *Union:
 		for _, m := range tt.Members {
-			if m == sub {
+			if typeEqual(m, sub) {
 				return true
 			}
 		}
 	case *Interface:
 		if ot, _ := sub.(*Object); ot != nil {
 			for _, i := range ot.Interfaces {
-				if i == target {
+				if typeEqual(i, target) {
 					return true
 				}
 			}

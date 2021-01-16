@@ -35,6 +35,11 @@ func (t *Interface) Rank() int {
 	return rankInterface
 }
 
+// Fields returns a list of the FieldDefs.
+func (t *Interface) Fields() []*FieldDef {
+	return t.fields.list
+}
+
 // String representation of the type.
 func (t *Interface) String() string {
 	return t.SDL()
