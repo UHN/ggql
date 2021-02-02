@@ -641,6 +641,9 @@ func (root *Root) replaceFieldRefs(fields *fieldList) (err error) {
 		if err = root.replaceArgRefs(&f.args); err != nil {
 			return
 		}
+		if err = root.replaceDirRefs(f.Dirs); err != nil {
+			return
+		}
 	}
 	return
 }
