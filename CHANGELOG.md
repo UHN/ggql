@@ -6,7 +6,7 @@ versioning.
 ## [1.2.8] - 2021-02-02
 
 ### Fixed
-- Reference were not replaces on field directives.
+- Reference were not replaced on field directives.
 
 ## [1.2.7] - 2021-01-16
 
