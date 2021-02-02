@@ -312,7 +312,19 @@ func TestRootReplaceRefsOk(t *testing.T) {
 		Type: &ggql.List{Base: &ggql.List{Base: &ggql.Ref{Base: ggql.Base{N: "Int"}}}},
 	})
 
-	dir := ggql.Directive{Base: ggql.Base{N: "dirt"}, On: []ggql.Location{ggql.LocUnion, ggql.LocField}}
+	inc := ggql.Input{Base: ggql.Base{N: "Incoming"}}
+	inc.AddField(&ggql.InputField{
+		Base: ggql.Base{
+			N:    "ref",
+			Dirs: []*ggql.DirectiveUse{{Directive: &ggql.Ref{Base: ggql.Base{N: "dirt"}}}},
+		},
+		Type: &ggql.Ref{Base: ggql.Base{N: "String"}},
+	})
+
+	dir := ggql.Directive{Base: ggql.Base{
+		N: "dirt"},
+		On: []ggql.Location{ggql.LocUnion, ggql.LocField, ggql.LocInputFieldDefinition},
+	}
 	dir.AddArg(&ggql.Arg{Base: ggql.Base{N: "reason"}, Type: &ggql.NonNull{Base: root.GetType("String")}})
 
 	err := root.AddTypes(&dir,
@@ -334,6 +346,7 @@ func TestRootReplaceRefsOk(t *testing.T) {
 			Members: []ggql.Type{&ggql.Ref{Base: ggql.Base{N: "Replace"}}},
 		},
 		&rep,
+		&inc,
 	)
 	checkNil(t, err, "schema parse failed. %s", err)
 
@@ -345,11 +358,15 @@ type Replace {
   nest: [[Int]]
 }
 
+input Incoming {
+  ref: String @dirt
+}
+
 union Unit @dirt(reason: "no reason") = Replace
 
 scalar Time
 
-directive @dirt(reason: String!) on UNION | FIELD
+directive @dirt(reason: String!) on UNION | FIELD | INPUT_FIELD_DEFINITION
 `
 	checkEqual(t, expect, actual, "root SDL() mismatch")
 	r, _ := root.GetType("Replace").(*ggql.Object)
@@ -364,6 +381,14 @@ directive @dirt(reason: String!) on UNION | FIELD
 	checkNotNil(t, du, "@dirt not found on ref")
 	d, _ := du.Directive.(*ggql.Directive)
 	checkNotNil(t, d, "@dirt ref was not replaced")
+
+	i, _ := root.GetType("Incoming").(*ggql.Input)
+	for _, f := range i.Fields() {
+		for _, du := range f.Dirs {
+			d, _ := du.Directive.(*ggql.Directive)
+			checkNotNil(t, d, "Directives were not replaced")
+		}
+	}
 }
 
 func TestRootReplaceRefsBadArgs(t *testing.T) {
@@ -514,6 +539,28 @@ func TestRootReplaceRefsBadDir(t *testing.T) {
 			},
 		},
 	)
+	checkNotNil(t, err, "check error was returned")
+
+	inc := ggql.Input{Base: ggql.Base{N: "Incoming"}}
+	inc.AddField(&ggql.InputField{
+		Base: ggql.Base{
+			N:    "ref",
+			Dirs: []*ggql.DirectiveUse{{Directive: &ggql.Ref{Base: ggql.Base{N: "dirt"}}}},
+		},
+		Type: &ggql.Ref{Base: ggql.Base{N: "String"}},
+	})
+	err = root.AddTypes(&inc)
+	checkNotNil(t, err, "check error was returned")
+
+	obj := ggql.Object{Base: ggql.Base{N: "BadDir"}}
+	obj.AddField(&ggql.FieldDef{
+		Base: ggql.Base{
+			N:    "ref",
+			Dirs: []*ggql.DirectiveUse{{Directive: &ggql.Ref{Base: ggql.Base{N: "dirt"}}}},
+		},
+		Type: &ggql.Ref{Base: ggql.Base{N: "String"}},
+	})
+	err = root.AddTypes(&obj)
 	checkNotNil(t, err, "check error was returned")
 
 	input := &ggql.Input{Base: ggql.Base{N: "BadListField"}}
