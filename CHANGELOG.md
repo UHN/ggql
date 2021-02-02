@@ -3,6 +3,11 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.8] - 2021-02-02
+
+### Fixed
+- Reference were not replaced on field directives.
+
 ## [1.2.7] - 2021-01-16
 
 ### Fixed

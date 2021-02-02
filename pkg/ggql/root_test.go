@@ -312,7 +312,7 @@ func TestRootReplaceRefsOk(t *testing.T) {
 		Type: &ggql.List{Base: &ggql.List{Base: &ggql.Ref{Base: ggql.Base{N: "Int"}}}},
 	})
 
-	dir := ggql.Directive{Base: ggql.Base{N: "dirt"}, On: []ggql.Location{ggql.LocUnion}}
+	dir := ggql.Directive{Base: ggql.Base{N: "dirt"}, On: []ggql.Location{ggql.LocUnion, ggql.LocField}}
 	dir.AddArg(&ggql.Arg{Base: ggql.Base{N: "reason"}, Type: &ggql.NonNull{Base: root.GetType("String")}})
 
 	err := root.AddTypes(&dir,
@@ -349,9 +349,21 @@ union Unit @dirt(reason: "no reason") = Replace
 
 scalar Time
 
-directive @dirt(reason: String!) on UNION
+directive @dirt(reason: String!) on UNION | FIELD
 `
 	checkEqual(t, expect, actual, "root SDL() mismatch")
+	r, _ := root.GetType("Replace").(*ggql.Object)
+	for _, f := range r.Fields() {
+		for _, du := range f.Dirs {
+			d, _ := du.Directive.(*ggql.Directive)
+			checkNotNil(t, d, "Directives were not replaced")
+		}
+	}
+	f := r.GetField("ref")
+	du := f.GetDirective("dirt")
+	checkNotNil(t, du, "@dirt not found on ref")
+	d, _ := du.Directive.(*ggql.Directive)
+	checkNotNil(t, d, "@dirt ref was not replaced")
 }
 
 func TestRootReplaceRefsBadArgs(t *testing.T) {
