@@ -665,6 +665,9 @@ func (root *Root) replaceInputFieldRefs(args *inputFieldList) (err error) {
 				return
 			}
 		}
+		if err = root.replaceDirRefs(a.Dirs); err != nil {
+			return
+		}
 	}
 	return
 }
