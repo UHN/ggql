@@ -67,7 +67,6 @@ func (root *Root) ResolveExecutable(
 	// Returned error can be either an array of errors as a Errors, an Error,
 	// or just a plain fmt.Errorf() return.
 
-	root.assureSchema()
 	op := exe.Ops[opName]
 	if op == nil {
 		if len(exe.Ops) == 1 {
@@ -505,13 +504,14 @@ func (root *Root) resolveField(
 			return
 		}
 	}
+	const queryType = "Query"
 	var ea2 []error
 	switch field.Name {
 	case "__typename":
 		result[field.key()] = t.Name()
 		return nil
 	case "__type":
-		if obj == root.queryObj {
+		if t.Name() == queryType {
 			var fv interface{} // field value
 			var av *ArgValue
 
@@ -543,7 +543,7 @@ func (root *Root) resolveField(
 		ea = append(ea, resWarnp(field, "__type meta-field is only on the query object"))
 		return
 	case "__schema":
-		if obj == root.queryObj {
+		if t.Name() == queryType {
 			var fv interface{} // field value
 
 			fv, ea2 = root.resolve(root, vars, field, root.uuSchemaType, depth)
@@ -584,9 +584,6 @@ func (root *Root) resolveField(
 	}
 	if err != nil {
 		ea = root.addError(field, ea, err)
-	}
-	if MaxResolveDepth == depth && root.queryObj == nil && field.Name == string(OpQuery) {
-		root.queryObj = attr
 	}
 	if IsNil(attr) {
 		result[field.key()] = nil

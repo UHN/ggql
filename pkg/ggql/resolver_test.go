@@ -2384,3 +2384,22 @@ func TestResolveValidateFieldExists(t *testing.T) {
 }
 `)
 }
+
+func TestResolveConcurrent(t *testing.T) {
+	// Performing concurrent resolution of executables should not fail or cause
+	// races.
+	root := setupTestSongs(t, nil)
+	const nRoutines = 3
+	errs := make(chan error, nRoutines)
+	for i := 0; i < nRoutines; i++ {
+		go func() {
+			exe, err := root.ParseExecutableString(`{__type(name: "Artist"){name} artists{songs{name}}}`)
+			checkNil(t, err, "parse executable")
+			_, e := root.ResolveExecutable(exe, "", nil)
+			errs <- e
+		}()
+	}
+	for i := 0; i < nRoutines; i++ {
+		checkNil(t, <-errs, "resolve executable should not fail")
+	}
+}

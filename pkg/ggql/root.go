@@ -35,7 +35,6 @@ type Root struct {
 	types         *typeList
 	dirs          *typeList
 	obj           interface{}
-	queryObj      interface{}
 	schema        *Schema
 	uuSchemaType  *uuSchema
 	AnyResolver   AnyResolver
@@ -314,6 +313,7 @@ func (root *Root) ParseReader(r io.Reader) error {
 		err = root.addExtends(extends...)
 	}
 	if err == nil {
+		root.assureSchema()
 		err = root.validate()
 	}
 	if err != nil {
