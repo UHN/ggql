@@ -163,12 +163,9 @@ func (root *Root) resolve(
 		objType := reflect.TypeOf(obj)
 		for _, m := range tt.Members {
 			if ot, _ := m.(*Object); ot != nil { // already checked in validation
-				if ot.meta == nil {
-					if err := ot.metaCheck(objType); err != nil {
-						return nil, []error{err}
-					}
-				}
-				if objType == ot.meta {
+				if meta, err := ot.metaCheck(objType); err != nil {
+					return nil, []error{err}
+				} else if objType == meta {
 					result, ea = root.resolveFieldSels(obj, vars, field, m, depth-1)
 					break
 				}
@@ -632,22 +629,22 @@ func (root *Root) resolveReflect(
 TOP:
 	switch tt := t.(type) {
 	case *Object:
-		if tt.meta == nil {
-			_ = root.regType(obj, tt)
-		}
+		_ = root.assureType(obj, tt)
 		if fd = tt.GetField(field.Name); fd != nil {
+			fd.mu.Lock()
 			if len(fd.goField) == 0 && fd.method == nil {
 				err = root.regField(tt, fd, field.Name)
 			}
+			fd.mu.Unlock()
 		}
 	case *Schema:
-		if tt.meta == nil {
-			_ = root.regType(obj, &tt.Object)
-		}
+		_ = root.assureType(obj, &tt.Object)
 		if fd = tt.GetField(field.Name); fd != nil {
+			fd.mu.Lock()
 			if len(fd.goField) == 0 && fd.method == nil {
 				err = root.regField(&tt.Object, fd, field.Name)
 			}
+			fd.mu.Unlock()
 		}
 	case *Interface:
 		// Determine actual type based on the obj and try again.
@@ -659,8 +656,12 @@ TOP:
 		return
 	}
 	if fd != nil {
+		fd.mu.Lock()
+		goField := fd.goField
+		method := fd.method
+		fd.mu.Unlock()
 		switch {
-		case 0 < len(fd.goField):
+		case 0 < len(goField):
 			if ov.Kind() == reflect.Ptr {
 				ov = ov.Elem()
 			}
@@ -669,7 +670,7 @@ TOP:
 					value = fv.Interface()
 				}
 			}
-		case fd.method != nil:
+		case method != nil:
 			args := root.formReflectArgs(ov, vars, field)
 			mva := fd.method.Call(args)
 			switch len(mva) {

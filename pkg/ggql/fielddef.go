@@ -17,6 +17,7 @@ package ggql
 import (
 	"io"
 	"reflect"
+	"sync"
 )
 
 // FieldDef in a representation of a field in an object or interface.
@@ -31,6 +32,7 @@ type FieldDef struct {
 
 	method  *reflect.Value
 	goField string
+	mu      sync.Mutex
 }
 
 // Write the type as SDL.

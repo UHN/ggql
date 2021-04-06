@@ -3,6 +3,11 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.11] - 2021-04-06
+
+### Fixed
+- Race condition when concurrently resolving executables using reflection.
+
 ## [1.2.10] - 2021-03-23
 
 ### Fixed
