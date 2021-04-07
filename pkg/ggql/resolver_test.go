@@ -2391,7 +2391,9 @@ func TestResolveConcurrent(t *testing.T) {
 	var roots []*ggql.Root
 	roots = append(roots, setupTestSongs(t, nil))
 	roots = append(roots, setupTestReflectSongs(t))
-	roots = append(roots, setupAnySongs(t))
+	anyResolverRoot, err := setupAnySongs()
+	checkNil(t, err, "setupAnySongs should not fail")
+	roots = append(roots, anyResolverRoot)
 
 	const nRoutines = 3
 	errs := make(chan error, nRoutines)
