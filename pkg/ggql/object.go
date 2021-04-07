@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"sync"
 )
 
 // Object is a GraphQL Object.
@@ -32,6 +33,7 @@ type Object struct {
 	fields fieldList
 
 	meta reflect.Type
+	mu   sync.Mutex
 }
 
 // Rank of the type.
@@ -247,7 +249,9 @@ func (t *Object) Resolve(field *Field, args map[string]interface{}) (result inte
 	return
 }
 
-func (t *Object) metaCheck(rt reflect.Type) error {
+func (t *Object) metaCheck(rt reflect.Type) (reflect.Type, error) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
 	if t.meta == nil {
 		bt := rt
 		for bt.Kind() == reflect.Ptr {
@@ -271,7 +275,7 @@ func (t *Object) metaCheck(rt reflect.Type) error {
 		}
 	}
 	if t.meta == nil {
-		return resError(t.line, t.col, "failed to determine union member %s implementation type. Use @go directive", t.N)
+		return t.meta, resError(t.line, t.col, "failed to determine union member %s implementation type. Use @go directive", t.N)
 	}
-	return nil
+	return t.meta, nil
 }

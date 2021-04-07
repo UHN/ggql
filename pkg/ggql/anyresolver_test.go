@@ -76,7 +76,7 @@ func (ar *Any) Nth(list interface{}, i int) (result interface{}, err error) {
 	return 0, fmt.Errorf("expected a []interface{}, not a %T", list)
 }
 
-func setupAnySongs(t *testing.T) *ggql.Root {
+func setupAnySongs() (*ggql.Root, error) {
 	may5 := &Date{Year: 2017, Month: 5, Day: 5}
 	nov2 := &Date{Year: 2015, Month: 11, Day: 2}
 	sep28 := &Date{Year: 2018, Month: 11, Day: 2}
@@ -111,17 +111,20 @@ func setupAnySongs(t *testing.T) *ggql.Root {
 	root := ggql.NewRoot(schema)
 	root.AnyResolver = &Any{}
 
-	err := root.AddTypes(NewDateScalar())
-	checkNil(t, err, "no error should be returned when adding a Date type. %s", err)
+	if err := root.AddTypes(NewDateScalar()); err != nil {
+		return nil, fmt.Errorf("no error should be returned when adding a Date type: %w", err)
+	}
 
-	err = root.ParseString(songsSdl)
-	checkNil(t, err, "no error should be returned when parsing a valid SDL. %s", err)
+	if err := root.ParseString(songsSdl); err != nil {
+		return nil, fmt.Errorf("no error should be returned when parsing a valid SDL: %w", err)
+	}
 
-	return root
+	return root, nil
 }
 
 func testAnyResolve(t *testing.T, sdl, src, expect string) {
-	root := setupAnySongs(t)
+	root, err := setupAnySongs()
+	checkNil(t, err, "setupAnySongs should not return an error")
 
 	if 0 < len(sdl) {
 		err := root.ParseString(sdl)

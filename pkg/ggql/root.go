@@ -102,7 +102,7 @@ func (root *Root) RegisterType(sample interface{}, gqlType string) error {
 		return err
 	}
 	if obj != nil {
-		return root.regType(sample, obj)
+		return root.assureType(sample, obj)
 	}
 	return root.regInput(sample, input)
 }
@@ -126,8 +126,10 @@ func (root *Root) getObjType(gqlType string) (obj *Object, input *Input, err err
 	return
 }
 
-func (root *Root) regType(sample interface{}, obj *Object) error {
+func (root *Root) assureType(sample interface{}, obj *Object) error {
 	meta := reflect.TypeOf(sample)
+	obj.mu.Lock()
+	defer obj.mu.Unlock()
 	if obj.meta != nil && obj.meta != meta {
 		return fmt.Errorf("%w: %s is already registered as a %s", ErrDuplicate, obj.N, obj.meta.String())
 	}
@@ -148,9 +150,15 @@ func (root *Root) regInput(sample interface{}, input *Input) error {
 
 func (root *Root) getReflectType(meta reflect.Type) (obj Type) {
 	for _, t := range root.types.list {
-		if o, _ := t.(*Object); o != nil && o.meta == meta {
-			obj = o
-			break
+		o, _ := t.(*Object)
+		if o != nil {
+			o.mu.Lock()
+			if o.meta == meta {
+				obj = o
+				o.mu.Unlock()
+				break
+			}
+			o.mu.Unlock()
 		}
 	}
 	return
@@ -165,18 +173,29 @@ func (root *Root) RegisterField(gqlType, gqlField, goField string, args ...strin
 	if err != nil {
 		return err
 	}
-	if obj == nil || obj.meta == nil {
+	if obj == nil {
+		return fmt.Errorf("%w: No object to resolve field %s on type %s", ErrMeta, gqlField, gqlType)
+	}
+	obj.mu.Lock()
+	if obj.meta == nil {
+		obj.mu.Unlock()
 		return fmt.Errorf("%w: %s has not been registered as a type", ErrMeta, obj.N)
 	}
+	obj.mu.Unlock()
 	fd := obj.fields.get(gqlField)
 	if fd == nil {
 		return fmt.Errorf("%w: %s is not a field of %s", ErrMeta, gqlField, obj.N)
 	}
-	return root.regField(obj, fd, goField, args...)
+	fd.mu.Lock()
+	err = root.regField(obj, fd, goField, args...)
+	fd.mu.Unlock()
+	return err
 }
 
 func (root *Root) regField(obj *Object, fd *FieldDef, goField string, args ...string) (err error) {
+	obj.mu.Lock()
 	meta := obj.meta
+	obj.mu.Unlock()
 	if meta.Kind() == reflect.Ptr {
 		meta = meta.Elem()
 	}

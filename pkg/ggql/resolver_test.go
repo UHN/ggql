@@ -2387,19 +2387,27 @@ func TestResolveValidateFieldExists(t *testing.T) {
 
 func TestResolveConcurrent(t *testing.T) {
 	// Performing concurrent resolution of executables should not fail or cause
-	// races.
-	root := setupTestSongs(t, nil)
+	// races using any of the resolving approaches.
+	var roots []*ggql.Root
+	roots = append(roots, setupTestSongs(t, nil))
+	roots = append(roots, setupTestReflectSongs(t))
+	anyResolverRoot, err := setupAnySongs()
+	checkNil(t, err, "setupAnySongs should not fail")
+	roots = append(roots, anyResolverRoot)
+
 	const nRoutines = 3
 	errs := make(chan error, nRoutines)
 	for i := 0; i < nRoutines; i++ {
 		go func() {
-			exe, err := root.ParseExecutableString(`{__type(name: "Artist"){name} artists{songs{name}}}`)
-			checkNil(t, err, "parse executable")
-			_, e := root.ResolveExecutable(exe, "", nil)
-			errs <- e
+			for _, root := range roots {
+				exe, err := root.ParseExecutableString(`{__type(name: "Artist"){name} artists{songs{name}}}`)
+				checkNil(t, err, "parse executable")
+				_, e := root.ResolveExecutable(exe, "", nil)
+				errs <- e
+			}
 		}()
 	}
-	for i := 0; i < nRoutines; i++ {
+	for i := 0; i < len(roots)*nRoutines; i++ {
 		checkNil(t, <-errs, "resolve executable should not fail")
 	}
 }
