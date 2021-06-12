@@ -15,6 +15,9 @@
 package ggql_test
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/uhn/ggql/pkg/ggql"
@@ -470,4 +473,49 @@ func TestRootParseExtendBad(t *testing.T) {
 		err := root.ParseString(sdl)
 		checkNotNil(t, err, "an error should be returned when parsing '%s'.", sdl)
 	}
+}
+
+func TestRootParseFS(t *testing.T) {
+	tempdir := t.TempDir()
+	err := os.WriteFile(filepath.Join(tempdir, "other.txt"), []byte("scalar Bad"), 0600) // should not be parsed.
+	checkNil(t, err, "no error should be returned")
+	err = os.WriteFile(filepath.Join(tempdir, "email.graphql"), []byte("scalar Email"), 0600)
+	checkNil(t, err, "no error should be returned")
+	err = os.WriteFile(filepath.Join(tempdir, "phone.gql"), []byte("scalar Phone"), 0600)
+	checkNil(t, err, "no error should be returned")
+
+	root := ggql.NewRoot(nil)
+	err = root.ParseFS(os.DirFS(tempdir), "*.graphql", "*.gql")
+	checkNil(t, err, "no error should be returned.")
+
+	email := root.GetType("Email")
+	checkNotNil(t, email, "email type should not be nil")
+	phone := root.GetType("Phone")
+	checkNotNil(t, phone, "phone type should not be nil")
+	bad := root.GetType("Bad")
+	checkNil(t, bad, "bad type should not have been parsed")
+}
+
+func TestRootParseFSBadPattern(t *testing.T) {
+	root := ggql.NewRoot(nil)
+	err := root.ParseFS(os.DirFS(t.TempDir()), "\\")
+	checkNotNil(t, err, "an error should be returned")
+}
+
+func TestRootParseFSErr(t *testing.T) {
+	tempdir := t.TempDir()
+	const noPermissions = 0000
+	err := os.WriteFile(filepath.Join(tempdir, "bad.graphql"), []byte("scalar Bad"), noPermissions)
+	checkNil(t, err, "no error should be returned writing the file")
+
+	root := ggql.NewRoot(nil)
+	err = root.ParseFS(os.DirFS(tempdir), "*.graphql")
+	checkNotNil(t, err, "an error should be returned")
+	checkEqual(t, true, strings.Contains(err.Error(), "permission denied"), "error states file could not be opened")
+}
+
+func TestRootParseFSNoPatterns(t *testing.T) {
+	root := ggql.NewRoot(nil)
+	err := root.ParseFS(os.DirFS(t.TempDir()))
+	checkNil(t, err, "no error should be returned")
 }

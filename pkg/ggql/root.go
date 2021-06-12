@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/fs"
 	"reflect"
 	"strings"
 	"sync"
@@ -340,6 +341,43 @@ func (root *Root) ParseReader(r io.Reader) error {
 		root.dirs = origDirs
 	}
 	return err
+}
+
+// ParseFS parses all files in fsys matching at least one of the patterns into
+// a Doc. The syntax of a pattern is the same as in path.Match. If no patterns
+// are supplied nothing will be parsed.
+//
+// For example, to parse a directory of *.graphql files, use:
+//     root.ParseFS(os.DirFS("dir"), "*.graphql")
+func (root *Root) ParseFS(fsys fs.FS, patterns ...string) (err error) {
+	fileSet := map[string]struct{}{}
+	for _, pat := range patterns {
+		matches, err := fs.Glob(fsys, pat)
+		if err != nil {
+			return fmt.Errorf("pattern %q: %w", pat, err)
+		}
+		for _, m := range matches {
+			fileSet[m] = struct{}{}
+		}
+	}
+	var schema []byte
+	for fname := range fileSet {
+		var f fs.File
+		if f, err = fsys.Open(fname); err == nil {
+			var bytes []byte
+			bytes, err = io.ReadAll(f)
+			cerr := f.Close()
+			if err == nil {
+				err = cerr
+				schema = append(schema, bytes...)
+			}
+		}
+		if err != nil {
+			return err
+		}
+		schema = append(schema, '\n')
+	}
+	return root.Parse(schema)
 }
 
 // ParseExecutableString parses an SDL string into a Doc.
