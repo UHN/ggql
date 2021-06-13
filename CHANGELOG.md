@@ -3,6 +3,14 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.12] - 2021-06-12
+
+### Changed
+- Bump Go version to 1.16.
+
+### Added
+- ParseFS method to Root which allows parsing GraphQL schema from an fs.FS.
+
 ## [1.2.11] - 2021-04-06
 
 ### Fixed
