@@ -3,7 +3,7 @@
 A GraphQL implementation for a GraphQL API that is easy to use and
 understand while still providing good performance.
 
-[![License][License-Image]][License-Url] [![Build Status][Travis-Image]][Travis-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] [![go.dev reference][Godoc-Image]][Godoc-Url] [![Coverage][Coverage-Image]][Coverage-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]
+[![License][License-Image]][License-Url] [![Build Status][Travis-Image]][Travis-Url] [![Build Status][Actions-Image]][Actions-Url] [![ReportCard][ReportCard-Image]][ReportCard-Url] [![go.dev reference][Godoc-Image]][Godoc-Url] [![Coverage][Coverage-Image]][Coverage-Url] [![FOSSA Status][Fossa-Image]][Fossa-Url]
 
 ## Features
 
@@ -109,3 +109,5 @@ under the Apache Version 2.0 license found in the LICENSE file.
 [Travis-Url]: https://travis-ci.org/UHN/ggql?branch=master
 [Godoc-Image]: https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square
 [Godoc-Url]: https://pkg.go.dev/mod/github.com/uhn/ggql@v1.0.0
+[Actions-Image]: https://github.com/uhn/ggql/actions/workflows/CI.yml/badge.svg
+[Actions-Url]: https://github.com/uhn/ggql/actions
