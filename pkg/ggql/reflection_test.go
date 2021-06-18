@@ -318,6 +318,13 @@ func TestReflectRegisterNonObjectField(t *testing.T) {
 	checkNotNil(t, err, "RegisterField with a non-object should fail")
 }
 
+func TestReflectRegisterNoObjectField(t *testing.T) {
+	root := setupTestReflectSongs(t)
+
+	err := root.RegisterField("Misc", "name", "Name")
+	checkNotNil(t, err, "RegisterField with a non-object should fail")
+}
+
 func TestReflectRegisterNotRegField(t *testing.T) {
 	root := setupTestReflectSongs(t)
 

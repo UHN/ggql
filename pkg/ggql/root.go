@@ -352,8 +352,8 @@ func (root *Root) ParseReader(r io.Reader) error {
 func (root *Root) ParseFS(fsys fs.FS, patterns ...string) (err error) {
 	fileSet := map[string]struct{}{}
 	for _, pat := range patterns {
-		matches, err := fs.Glob(fsys, pat)
-		if err != nil {
+		var matches []string
+		if matches, err = fs.Glob(fsys, pat); err != nil {
 			return fmt.Errorf("pattern %q: %w", pat, err)
 		}
 		for _, m := range matches {
