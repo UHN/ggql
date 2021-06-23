@@ -157,11 +157,29 @@ Usage: ggqlgen [options] [<schema-file>...]
 	for _, o := range overs.overs {
 		files = append(files, o.file)
 	}
-	if len(files) == 0 {
+	switch {
+	case len(files) == 0:
 		if err := root.ParseReader(os.Stdin); err != nil {
 			log.Fatalf("Failed to parse stdin: %s", err)
 		}
-	} else {
+	case 0 < len(stubDir):
+		var buf []byte
+		for _, filepath = range files {
+			sdl, err := getSDL(filepath)
+			if err != nil {
+				log.Fatalf("Failed to read schema file %s: %s", filepath, err)
+			}
+			buf = append(buf, sdl...)
+		}
+		if err := root.Parse(buf); err != nil {
+			log.Fatalf("Failed to parse file %s: %s", filepath, err)
+		}
+		for _, t := range root.Types() {
+			if !t.Core() {
+				exists[t.Name()] = true
+			}
+		}
+	default:
 		for _, filepath = range files {
 			var e *embed
 			for _, e2 := range embeds.embeds {
