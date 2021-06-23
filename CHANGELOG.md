@@ -3,6 +3,11 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.13] - 2021-06-22
+
+### Fixed
+- ggqlgen no longer requires input files to be in a dependent order when generating stubs.
+
 ## [1.2.12] - 2021-06-12
 
 ### Changed
