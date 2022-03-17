@@ -69,6 +69,9 @@ func formOneErrorResult(err error) map[string]interface{} {
 		if 0 < len(e.Path) {
 			em["path"] = e.Path
 		}
+		if e.Extensions != nil {
+			em["extensions"] = e.Extensions
+		}
 	} else {
 		em["message"] = err.Error()
 	}
