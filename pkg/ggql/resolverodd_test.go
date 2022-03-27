@@ -38,6 +38,7 @@ type Query {
   eat(what: Food!): String
   size(list: [Int!]): Int
   lunch(what: Bento!): String
+  errorExtension: Int
 }
 
 "Japanese lunch box"
@@ -106,6 +107,13 @@ func (q *oddQuery) Resolve(field *ggql.Field, args map[string]interface{}) (inte
 	case "size":
 		list, _ := args["list"].([]interface{})
 		return len(list), nil
+	case "errorExtension":
+		return 1, &ggql.Error{
+			Base: fmt.Errorf("some error"),
+			Extensions: map[string]interface{}{
+				"code": "ERROR_CODE",
+			},
+		}
 	}
 	return nil, fmt.Errorf("type Query does not have field %s", field)
 }
@@ -441,5 +449,34 @@ func TestResolveInterfaceNilTime(t *testing.T) {
   }
 }
 `
+	testOddResolve(t, src, expect, nil)
+}
+
+func TestResolveErrorWithExtensions(t *testing.T) {
+	src := `{errorExtension}`
+	expect := `{
+  "data": {
+    "errorExtension": 1
+  },
+  "errors": [
+    {
+      "extensions": {
+        "code": "ERROR_CODE"
+      },
+      "locations": [
+        {
+          "column": 3,
+          "line": 1
+        }
+      ],
+      "message": "resolve error: some error",
+      "path": [
+        "errorExtension"
+      ]
+    }
+  ]
+}
+`
+
 	testOddResolve(t, src, expect, nil)
 }

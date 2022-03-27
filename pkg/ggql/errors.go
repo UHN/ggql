@@ -99,6 +99,11 @@ type Error struct {
 	// or nil then it does not apply to the response data or that
 	// determination could not be made.
 	Path []interface{}
+
+	// Extensions is reserved for implementors to add additional information to
+	// errors however they see fit, and there are no additional restrictions on
+	// its contents.
+	Extensions map[string]interface{}
 }
 
 // Error returns a string representation of the error.
