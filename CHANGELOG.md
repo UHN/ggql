@@ -3,6 +3,11 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [1.2.14] - 2022-03-27
+
+### Added
+- Support for "extensions" field on returned GraphQL errors.
+
 ## [1.2.13] - 2021-06-22
 
 ### Fixed

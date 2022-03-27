@@ -610,6 +610,7 @@ func (root *Root) addError(f *Field, ea []error, err error) []error {
 		}
 	case errors.As(err, &e1):
 		err = resWarn(f.line, f.col, "%s", err)
+		err.(*Error).Extensions = e1.Extensions //nolint:errorlint
 		ea = append(ea, err)
 	default:
 		ea = append(ea, resWarn(f.line, f.col, "%s", err))
