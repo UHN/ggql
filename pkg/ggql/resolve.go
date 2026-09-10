@@ -88,6 +88,7 @@ func (root *Root) ResolveExecutable(
 			opVars[vd.Name] = vd.Default
 			if vars != nil {
 				if v := vars[vd.Name]; v != nil {
+					v = symbolizeEnums(vd.Type, v)
 					if ic, _ := vd.Type.(InCoercer); ic != nil { // validated in SDL validation
 						v, err = ic.CoerceIn(v)
 					}
@@ -437,7 +438,7 @@ func (root *Root) replaceArgVars(vars map[string]interface{}, v interface{}, at 
 	val = v
 	switch tv := val.(type) {
 	case Var:
-		val = vars[string(tv)]
+		val = symbolizeEnums(at, vars[string(tv)])
 		if at != nil {
 			if ic, _ := at.(InCoercer); ic != nil { // validated in SDL validation
 				if val, err = ic.CoerceIn(val); err != nil {

@@ -3,6 +3,14 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [Unreleased]
+
+### Fixed
+- Enum values are accepted when sent as strings in variables, and validated
+  against the enum's members. JSON has no enum type, so a GraphQL client
+  transports an enum value as a string; a string written into a document as a
+  literal is still refused, as the specification requires.
+
 ## [1.2.14] - 2022-03-27
 
 ### Added
