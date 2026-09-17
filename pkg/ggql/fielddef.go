@@ -83,12 +83,13 @@ func (f *FieldDef) isDeprecated() bool {
 }
 
 // Resolve returns one of the following:
-//   name: String!
-//   description: String
-//   args: [__InputValue!]!
-//   type: __Type!
-//   isDeprecated: Boolean!
-//   deprecationReason: String
+//
+//	name: String!
+//	description: String
+//	args: [__InputValue!]!
+//	type: __Type!
+//	isDeprecated: Boolean!
+//	deprecationReason: String
 func (f *FieldDef) Resolve(field *Field, args map[string]interface{}) (result interface{}, err error) {
 	switch field.Name {
 	case nameStr:

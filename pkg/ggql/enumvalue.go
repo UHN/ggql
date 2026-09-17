@@ -56,10 +56,11 @@ func (ev *EnumValue) Write(w io.Writer, desc bool) (err error) {
 }
 
 // Resolve returns one of the following:
-//   name: String!
-//   description: String
-//   isDeprecated: Boolean!
-//   deprecationReason: String
+//
+//	name: String!
+//	description: String
+//	isDeprecated: Boolean!
+//	deprecationReason: String
 func (ev *EnumValue) Resolve(field *Field, args map[string]interface{}) (result interface{}, err error) {
 	switch field.Name {
 	case nameStr:
