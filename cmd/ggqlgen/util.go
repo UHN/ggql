@@ -48,7 +48,13 @@ func typeStr(t ggql.Type) string {
 }
 
 func publicName(s string) string {
-	public := strings.Title(s)
+	// strings.Title is deprecated, and golang.org/x/text/cases would be this
+	// package's only dependency. A GraphQL name is a single ASCII word, so
+	// capitalizing its first letter does the same job here.
+	public := s
+	if public != "" {
+		public = strings.ToUpper(public[:1]) + public[1:]
+	}
 	public = strings.ReplaceAll(public, "Id", "ID")
 	public = strings.ReplaceAll(public, "id", "ID")
 	return public

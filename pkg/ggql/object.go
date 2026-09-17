@@ -255,7 +255,7 @@ func (t *Object) metaCheck(rt reflect.Type) (reflect.Type, error) {
 	defer t.mu.Unlock()
 	if t.meta == nil {
 		bt := rt
-		for bt.Kind() == reflect.Ptr {
+		for bt.Kind() == reflect.Pointer {
 			bt = bt.Elem()
 		}
 		du := t.GetDirective("go")

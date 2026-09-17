@@ -62,7 +62,7 @@ func (err Errors) Error() string {
 	var b bytes.Buffer
 	b.WriteString("Errors{\n")
 	for _, e := range err {
-		b.WriteString(fmt.Sprintf("  %s\n", e))
+		fmt.Fprintf(&b, "  %s\n", e)
 	}
 	b.WriteString("}\n")
 
@@ -117,11 +117,11 @@ func (err *Error) Error() string {
 			if 0 < i {
 				b.WriteByte('.')
 			}
-			b.WriteString(fmt.Sprintf("%v", p))
+			fmt.Fprintf(&b, "%v", p)
 		}
 	}
 	if 0 < err.Line || 0 < err.Column {
-		b.WriteString(fmt.Sprintf(" from %d:%d", err.Line, err.Column))
+		fmt.Fprintf(&b, " from %d:%d", err.Line, err.Column)
 	}
 	return b.String()
 }

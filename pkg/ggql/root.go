@@ -197,7 +197,7 @@ func (root *Root) regField(obj *Object, fd *FieldDef, goField string, args ...st
 	obj.mu.Lock()
 	meta := obj.meta
 	obj.mu.Unlock()
-	if meta.Kind() == reflect.Ptr {
+	if meta.Kind() == reflect.Pointer {
 		meta = meta.Elem()
 	}
 	if meta.Kind() == reflect.Struct {

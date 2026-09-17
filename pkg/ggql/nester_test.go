@@ -27,7 +27,7 @@ type nest struct {
 }
 
 func (n *nest) Nest(f *ggql.Field) interface{} {
-	n.buf.WriteString(fmt.Sprintf("nest.Nest(%s)\n", f.Name))
+	fmt.Fprintf(n.buf, "nest.Nest(%s)\n", f.Name)
 	return &nest{buf: n.buf}
 }
 

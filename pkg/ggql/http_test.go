@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -58,7 +58,7 @@ func TestParseHTTP(t *testing.T) {
 	checkNil(t, err, "POST failed. %s", err)
 
 	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 
 	checkEqual(t, `{"data":{"artist":{"name":"Fazerdaze"}}}`, string(body), "parsed vs given")
 }

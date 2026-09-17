@@ -104,7 +104,7 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 		var rv reflect.Value
 		rt := t.meta
 		if rt != nil {
-			if rt.Kind() == reflect.Ptr {
+			if rt.Kind() == reflect.Pointer {
 				rt = rt.Elem()
 			}
 			if rt.Kind() == reflect.Struct {

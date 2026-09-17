@@ -610,9 +610,11 @@ func (root *Root) addError(f *Field, ea []error, err error) []error {
 			ea = root.addError(f, ea, e)
 		}
 	case errors.As(err, &e1):
-		err = resWarn(f.line, f.col, "%s", err)
-		err.(*Error).Extensions = e1.Extensions //nolint:errorlint
-		ea = append(ea, err)
+		warn := resWarn(f.line, f.col, "%s", err)
+		if we, ok := warn.(*Error); ok {
+			we.Extensions = e1.Extensions
+		}
+		ea = append(ea, warn)
 	default:
 		ea = append(ea, resWarn(f.line, f.col, "%s", err))
 	}
@@ -664,7 +666,7 @@ TOP:
 		fd.mu.Unlock()
 		switch {
 		case 0 < len(goField):
-			if ov.Kind() == reflect.Ptr {
+			if ov.Kind() == reflect.Pointer {
 				ov = ov.Elem()
 			}
 			if ov.Kind() == reflect.Struct {

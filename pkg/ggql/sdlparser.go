@@ -33,10 +33,7 @@ func parseSDL(root *Root, reader io.Reader) (types []Type, extends []*Extend, er
 	if err = p.skipBOM(); err != nil {
 		return
 	}
-	for {
-		if p.eof {
-			break
-		}
+	for !p.eof {
 		var t Type
 		if b, err = p.skipSpace(); err != nil {
 			break // drop down to AddTypes

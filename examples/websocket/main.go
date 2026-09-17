@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -151,7 +151,7 @@ func handleGraphQL(w http.ResponseWriter, req *http.Request, root *ggql.Root) {
 				case "application/json":
 					var jmap map[string]interface{}
 					var data []byte
-					if data, err = ioutil.ReadAll(req.Body); err == nil {
+					if data, err = io.ReadAll(req.Body); err == nil {
 						err = json.Unmarshal(data, &jmap)
 					}
 					if err == nil {
@@ -232,7 +232,7 @@ func main() {
 	})
 	// The page with the Javascript that makes a WebSocket call.
 	http.HandleFunc("/price.html", func(w http.ResponseWriter, r *http.Request) {
-		content, _ := ioutil.ReadFile("price.html")
+		content, _ := os.ReadFile("price.html")
 		_, _ = w.Write(content)
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})

@@ -16,7 +16,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -26,7 +26,7 @@ import (
 func stubObject(t *ggql.Object) (err error) {
 	var b strings.Builder
 
-	b.WriteString(fmt.Sprintf("package %s\n\n", pkg))
+	fmt.Fprintf(&b, "package %s\n\n", pkg)
 	b.WriteString("import (\n")
 	if reflect {
 		for _, f := range t.Fields() {
@@ -69,7 +69,7 @@ TOP:
 	}
 	path := filepath.Join(stubDir, strings.ToLower(t.Name())+".go")
 
-	return ioutil.WriteFile(path, []byte(b.String()), 0600)
+	return os.WriteFile(path, []byte(b.String()), 0600)
 }
 
 func stubObjectStruct(b *strings.Builder, t *ggql.Object) (err error) {
@@ -78,11 +78,11 @@ func stubObjectStruct(b *strings.Builder, t *ggql.Object) (err error) {
 		desc = dotdotdot
 	}
 	if strings.HasPrefix(desc, t.Name()+" ") {
-		b.WriteString(fmt.Sprintf("// %s\n", strings.ReplaceAll(desc, "\n", "\n// ")))
+		fmt.Fprintf(b, "// %s\n", strings.ReplaceAll(desc, "\n", "\n// "))
 	} else {
-		b.WriteString(fmt.Sprintf("// %s %s\n", t.Name(), strings.ReplaceAll(desc, "\n", "\n// ")))
+		fmt.Fprintf(b, "// %s %s\n", t.Name(), strings.ReplaceAll(desc, "\n", "\n// "))
 	}
-	b.WriteString(fmt.Sprintf("type %s struct {\n", t.Name()))
+	fmt.Fprintf(b, "type %s struct {\n", t.Name())
 	for _, f := range t.Fields() {
 		if 0 < len(f.Args()) {
 			continue
@@ -93,11 +93,11 @@ func stubObjectStruct(b *strings.Builder, t *ggql.Object) (err error) {
 			desc = dotdotdot
 		}
 		if strings.HasPrefix(desc, public+" ") {
-			b.WriteString(fmt.Sprintf("\n\t// %s\n", strings.ReplaceAll(desc, "\n", "\n\t// ")))
+			fmt.Fprintf(b, "\n\t// %s\n", strings.ReplaceAll(desc, "\n", "\n\t// "))
 		} else {
-			b.WriteString(fmt.Sprintf("\n\t// %s %s\n", public, strings.ReplaceAll(desc, "\n", "\n\t// ")))
+			fmt.Fprintf(b, "\n\t// %s %s\n", public, strings.ReplaceAll(desc, "\n", "\n\t// "))
 		}
-		b.WriteString(fmt.Sprintf("\t%s %s\n", public, typeStr(f.Type)))
+		fmt.Fprintf(b, "\t%s %s\n", public, typeStr(f.Type))
 	}
 	b.WriteString("}\n\n")
 
@@ -115,19 +115,19 @@ func stubObjectFuncs(b *strings.Builder, t *ggql.Object) (err error) {
 			desc = dotdotdot
 		}
 		if strings.HasPrefix(desc, public+" ") {
-			b.WriteString(fmt.Sprintf("// %s\n", strings.ReplaceAll(desc, "\n", "\n\t// ")))
+			fmt.Fprintf(b, "// %s\n", strings.ReplaceAll(desc, "\n", "\n\t// "))
 		} else {
-			b.WriteString(fmt.Sprintf("// %s %s\n", public, strings.ReplaceAll(desc, "\n", "\n\t// ")))
+			fmt.Fprintf(b, "// %s %s\n", public, strings.ReplaceAll(desc, "\n", "\n\t// "))
 		}
-		b.WriteString(fmt.Sprintf("func (t *%s) %s(", t.Name(), public))
+		fmt.Fprintf(b, "func (t *%s) %s(", t.Name(), public)
 		for i, a := range f.Args() {
 			if 0 < i {
-				b.WriteString(fmt.Sprintf(", %s %s", a.N, typeStr(a.Type)))
+				fmt.Fprintf(b, ", %s %s", a.N, typeStr(a.Type))
 			} else {
-				b.WriteString(fmt.Sprintf("%s %s", a.N, typeStr(a.Type)))
+				fmt.Fprintf(b, "%s %s", a.N, typeStr(a.Type))
 			}
 		}
-		b.WriteString(fmt.Sprintf(") (result %s, err error) {\n\n", typeStr(f.Type)))
+		fmt.Fprintf(b, ") (result %s, err error) {\n\n", typeStr(f.Type))
 
 		b.WriteString("\t// FIXME\n")
 		b.WriteString("\terr = fmt.Errorf(\"not implemented yet\")\n\n")
@@ -140,31 +140,31 @@ func stubObjectFuncs(b *strings.Builder, t *ggql.Object) (err error) {
 
 func stubObjectResolve(b *strings.Builder, t *ggql.Object) (err error) {
 	b.WriteString("// Resolve a field into a value.\n")
-	b.WriteString(fmt.Sprintf("func (t *%s) Resolve(field *ggql.Field, args map[string]interface{}) (interface{}, error) {\n", t.Name()))
+	fmt.Fprintf(b, "func (t *%s) Resolve(field *ggql.Field, args map[string]interface{}) (interface{}, error) {\n", t.Name())
 	b.WriteString("\tswitch field.Name {\n")
 	for _, f := range t.Fields() {
 		public := publicName(f.Name())
-		b.WriteString(fmt.Sprintf("\tcase \"%s\":\n", f.Name()))
+		fmt.Fprintf(b, "\tcase \"%s\":\n", f.Name())
 		if 0 < len(f.Args()) {
 			for _, a := range f.Args() {
-				b.WriteString(fmt.Sprintf("\t\t%s, _ := args[\"%s\"].(%s)\n", a.Name(), a.Name(), typeStr(a.Type)))
+				fmt.Fprintf(b, "\t\t%s, _ := args[\"%s\"].(%s)\n", a.Name(), a.Name(), typeStr(a.Type))
 			}
-			b.WriteString(fmt.Sprintf("\n\t\treturn t.%s(", public))
+			fmt.Fprintf(b, "\n\t\treturn t.%s(", public)
 			for i, a := range f.Args() {
 				if 0 < i {
-					b.WriteString(fmt.Sprintf(", %s", a.Name()))
+					fmt.Fprintf(b, ", %s", a.Name())
 				} else {
 					b.WriteString(a.Name())
 				}
 			}
 			b.WriteString(")\n")
 		} else {
-			b.WriteString(fmt.Sprintf("\t\treturn t.%s, nil\n", public))
+			fmt.Fprintf(b, "\t\treturn t.%s, nil\n", public)
 		}
 	}
 	b.WriteString("\t}\n")
 
-	b.WriteString(fmt.Sprintf("\treturn nil, fmt.Errorf(\"type %s does not have field %%s\", field)\n", t.Name()))
+	fmt.Fprintf(b, "\treturn nil, fmt.Errorf(\"type %s does not have field %%s\", field)\n", t.Name())
 	b.WriteString("}\n")
 
 	return
