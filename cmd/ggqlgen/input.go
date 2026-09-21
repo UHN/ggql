@@ -16,7 +16,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -26,7 +26,7 @@ import (
 func stubInput(t *ggql.Input) (err error) {
 	var b strings.Builder
 
-	b.WriteString(fmt.Sprintf("package %s\n\n", pkg))
+	fmt.Fprintf(&b, "package %s\n\n", pkg)
 	for _, f := range t.Fields() {
 		if f.Type.Name() == timeStr {
 			b.WriteString("import \"time\"\n\n")
@@ -38,11 +38,11 @@ func stubInput(t *ggql.Input) (err error) {
 		desc = dotdotdot
 	}
 	if strings.HasPrefix(desc, t.Name()+" ") {
-		b.WriteString(fmt.Sprintf("// %s\n", strings.ReplaceAll(desc, "\n", "\n// ")))
+		fmt.Fprintf(&b, "// %s\n", strings.ReplaceAll(desc, "\n", "\n// "))
 	} else {
-		b.WriteString(fmt.Sprintf("// %s %s\n", t.Name(), strings.ReplaceAll(desc, "\n", "\n// ")))
+		fmt.Fprintf(&b, "// %s %s\n", t.Name(), strings.ReplaceAll(desc, "\n", "\n// "))
 	}
-	b.WriteString(fmt.Sprintf("type %s struct {\n", t.Name()))
+	fmt.Fprintf(&b, "type %s struct {\n", t.Name())
 	for _, f := range t.Fields() {
 		public := publicName(f.N)
 		desc = f.Desc
@@ -50,14 +50,14 @@ func stubInput(t *ggql.Input) (err error) {
 			desc = dotdotdot
 		}
 		if strings.HasPrefix(desc, public+" ") {
-			b.WriteString(fmt.Sprintf("\n\t// %s\n", strings.ReplaceAll(desc, "\n", "\n\t// ")))
+			fmt.Fprintf(&b, "\n\t// %s\n", strings.ReplaceAll(desc, "\n", "\n\t// "))
 		} else {
-			b.WriteString(fmt.Sprintf("\n\t// %s %s\n", public, strings.ReplaceAll(desc, "\n", "\n\t// ")))
+			fmt.Fprintf(&b, "\n\t// %s %s\n", public, strings.ReplaceAll(desc, "\n", "\n\t// "))
 		}
-		b.WriteString(fmt.Sprintf("\t%s %s\n", public, typeStr(f.Type)))
+		fmt.Fprintf(&b, "\t%s %s\n", public, typeStr(f.Type))
 	}
 	b.WriteString("}\n")
 	path := filepath.Join(stubDir, strings.ToLower(t.Name())+".go")
 
-	return ioutil.WriteFile(path, []byte(b.String()), 0600)
+	return os.WriteFile(path, []byte(b.String()), 0600)
 }

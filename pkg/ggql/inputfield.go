@@ -62,10 +62,11 @@ func (f *InputField) Write(w io.Writer, desc bool) (err error) {
 }
 
 // Resolve returns one of the following:
-//   name: String!
-//   description: String
-//   type: __Type!
-//   defaultValue: String
+//
+//	name: String!
+//	description: String
+//	type: __Type!
+//	defaultValue: String
 func (f *InputField) Resolve(field *Field, args map[string]interface{}) (result interface{}, err error) {
 	switch field.Name {
 	case nameStr:

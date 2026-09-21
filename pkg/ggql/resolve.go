@@ -88,6 +88,7 @@ func (root *Root) ResolveExecutable(
 			opVars[vd.Name] = vd.Default
 			if vars != nil {
 				if v := vars[vd.Name]; v != nil {
+					v = symbolizeEnums(vd.Type, v)
 					if ic, _ := vd.Type.(InCoercer); ic != nil { // validated in SDL validation
 						v, err = ic.CoerceIn(v)
 					}
@@ -437,7 +438,7 @@ func (root *Root) replaceArgVars(vars map[string]interface{}, v interface{}, at 
 	val = v
 	switch tv := val.(type) {
 	case Var:
-		val = vars[string(tv)]
+		val = symbolizeEnums(at, vars[string(tv)])
 		if at != nil {
 			if ic, _ := at.(InCoercer); ic != nil { // validated in SDL validation
 				if val, err = ic.CoerceIn(val); err != nil {
@@ -609,9 +610,11 @@ func (root *Root) addError(f *Field, ea []error, err error) []error {
 			ea = root.addError(f, ea, e)
 		}
 	case errors.As(err, &e1):
-		err = resWarn(f.line, f.col, "%s", err)
-		err.(*Error).Extensions = e1.Extensions //nolint:errorlint
-		ea = append(ea, err)
+		warn := resWarn(f.line, f.col, "%s", err)
+		if we, ok := warn.(*Error); ok {
+			we.Extensions = e1.Extensions
+		}
+		ea = append(ea, warn)
 	default:
 		ea = append(ea, resWarn(f.line, f.col, "%s", err))
 	}
@@ -663,7 +666,7 @@ TOP:
 		fd.mu.Unlock()
 		switch {
 		case 0 < len(goField):
-			if ov.Kind() == reflect.Ptr {
+			if ov.Kind() == reflect.Pointer {
 				ov = ov.Elem()
 			}
 			if ov.Kind() == reflect.Struct {

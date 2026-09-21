@@ -77,3 +77,49 @@ func formOneErrorResult(err error) map[string]interface{} {
 	}
 	return em
 }
+
+// unwrapNonNull removes any NonNull wrappers from a type, leaving lists intact.
+func unwrapNonNull(t Type) Type {
+	if nn, _ := t.(*NonNull); nn != nil {
+		return unwrapNonNull(nn.Base)
+	}
+	return t
+}
+
+// symbolizeEnums converts the strings in a variable value into enum Symbols
+// wherever the declared type expects an enum, descending through lists and
+// input objects.
+//
+// JSON has no enum type, so a client transports an enum value as a string; the
+// specification allows that for variable values while requiring that a string
+// literal written into a document be refused. Converting here, against the
+// variable's declared type, keeps those two cases apart: a variable's string
+// becomes a Symbol and is then validated against the enum's members by the
+// ordinary coercion, exactly as a literal token is, while a string appearing in
+// the document is untouched and still refused.
+func symbolizeEnums(t Type, v interface{}) interface{} {
+	if t == nil {
+		return v
+	}
+	switch tv := v.(type) {
+	case string:
+		if _, ok := BaseType(t).(*Enum); ok {
+			return Symbol(tv)
+		}
+	case []interface{}:
+		if lt, _ := unwrapNonNull(t).(*List); lt != nil {
+			for i, m := range tv {
+				tv[i] = symbolizeEnums(lt.Base, m)
+			}
+		}
+	case map[string]interface{}:
+		if it, _ := BaseType(t).(*Input); it != nil {
+			for k, m := range tv {
+				if f := it.fields.get(k); f != nil {
+					tv[k] = symbolizeEnums(f.Type, m)
+				}
+			}
+		}
+	}
+	return v
+}

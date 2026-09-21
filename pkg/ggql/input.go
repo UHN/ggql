@@ -104,7 +104,7 @@ func (t *Input) CoerceIn(v interface{}) (interface{}, error) {
 		var rv reflect.Value
 		rt := t.meta
 		if rt != nil {
-			if rt.Kind() == reflect.Ptr {
+			if rt.Kind() == reflect.Pointer {
 				rt = rt.Elem()
 			}
 			if rt.Kind() == reflect.Struct {
@@ -238,15 +238,16 @@ func (t *Input) Validate(root *Root) (errs []error) {
 }
 
 // Resolve returns one of the following:
-//   kind: __TypeKind!
-//   name: String
-//   description: String
-//   fields(includeDeprecated: Boolean = false): [__Field!]
-//   interfaces: [__Type!]
-//   possibleTypes: [__Type!]
-//   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
-//   inputfields: [__InputValue!]
-//   ofType: __Type
+//
+//	kind: __TypeKind!
+//	name: String
+//	description: String
+//	fields(includeDeprecated: Boolean = false): [__Field!]
+//	interfaces: [__Type!]
+//	possibleTypes: [__Type!]
+//	enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
+//	inputfields: [__InputValue!]
+//	ofType: __Type
 func (t *Input) Resolve(field *Field, args map[string]interface{}) (result interface{}, err error) {
 	switch field.Name {
 	case kindStr:

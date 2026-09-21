@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -281,7 +281,7 @@ func buildRoot() (root *ggql.Root, err error) {
 		return
 	}
 	var sdl []byte
-	if sdl, err = ioutil.ReadFile("song.graphql"); err == nil {
+	if sdl, err = os.ReadFile("song.graphql"); err == nil {
 		err = root.Parse(sdl)
 	}
 	return
@@ -300,7 +300,7 @@ func handleGraphQL(w http.ResponseWriter, req *http.Request, root *ggql.Root) {
 		result = root.ResolveString(req.URL.Query().Get("query"), "", nil)
 	case "POST":
 		defer func() { _ = req.Body.Close() }()
-		body, err := ioutil.ReadAll(req.Body)
+		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			w.WriteHeader(400)
 			_, _ = w.Write([]byte(err.Error()))

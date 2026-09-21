@@ -80,10 +80,11 @@ func writeArgs(w io.Writer, args *argList, desc bool) (err error) {
 }
 
 // Resolve returns one of the following:
-//   name: String!
-//   description: String
-//   type: __Type!
-//   defaultValue: String
+//
+//	name: String!
+//	description: String
+//	type: __Type!
+//	defaultValue: String
 func (a *Arg) Resolve(field *Field, args map[string]interface{}) (result interface{}, err error) {
 	switch field.Name {
 	case nameStr:

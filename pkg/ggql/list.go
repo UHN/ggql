@@ -145,15 +145,16 @@ func (t *List) CoerceOut(v interface{}) (interface{}, error) {
 }
 
 // Resolve returns one of the following:
-//   kind: __TypeKind!
-//   name: String
-//   description: String
-//   fields(includeDeprecated: Boolean = false): [__Field!]
-//   interfaces: [__Type!]
-//   possibleTypes: [__Type!]
-//   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
-//   inputfields: [__InputValue!]
-//   ofType: __Type
+//
+//	kind: __TypeKind!
+//	name: String
+//	description: String
+//	fields(includeDeprecated: Boolean = false): [__Field!]
+//	interfaces: [__Type!]
+//	possibleTypes: [__Type!]
+//	enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
+//	inputfields: [__InputValue!]
+//	ofType: __Type
 func (t *List) Resolve(field *Field, args map[string]interface{}) (interface{}, error) {
 	switch field.Name {
 	case kindStr, descriptionStr:

@@ -33,10 +33,7 @@ func parseExe(root *Root, reader io.Reader) (exe *Executable, err error) {
 	}
 	var token string
 
-	for {
-		if p.eof || err != nil {
-			break
-		}
+	for !p.eof && err == nil {
 		if _, err = p.skipSpace(); err != nil {
 			break
 		}
@@ -117,10 +114,7 @@ func (p *exeParser) readSelectionSet() (sels []Selection, err error) {
 	}
 	_, _ = p.readByte() // re-read {
 FOR:
-	for {
-		if err != nil {
-			break
-		}
+	for err == nil {
 		b, err = p.skipSpace()
 		switch b {
 		case 0:

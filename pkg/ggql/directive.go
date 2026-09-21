@@ -145,10 +145,11 @@ func (t *Directive) hasDirLoop(hits map[string]bool) []string {
 }
 
 // Resolve returns one of the following:
-//   name: String!
-//   description: String
-//   locations: [__DirectiveLocation!]!
-//   args: [__InputValue!]!
+//
+//	name: String!
+//	description: String
+//	locations: [__DirectiveLocation!]!
+//	args: [__InputValue!]!
 func (t *Directive) Resolve(field *Field, args map[string]interface{}) (result interface{}, err error) {
 	switch field.Name {
 	case nameStr:

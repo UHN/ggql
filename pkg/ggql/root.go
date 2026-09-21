@@ -197,7 +197,7 @@ func (root *Root) regField(obj *Object, fd *FieldDef, goField string, args ...st
 	obj.mu.Lock()
 	meta := obj.meta
 	obj.mu.Unlock()
-	if meta.Kind() == reflect.Ptr {
+	if meta.Kind() == reflect.Pointer {
 		meta = meta.Elem()
 	}
 	if meta.Kind() == reflect.Struct {
@@ -348,7 +348,8 @@ func (root *Root) ParseReader(r io.Reader) error {
 // are supplied nothing will be parsed.
 //
 // For example, to parse a directory of *.graphql files, use:
-//     root.ParseFS(os.DirFS("dir"), "*.graphql")
+//
+//	root.ParseFS(os.DirFS("dir"), "*.graphql")
 func (root *Root) ParseFS(fsys fs.FS, patterns ...string) (err error) {
 	fileSet := map[string]struct{}{}
 	for _, pat := range patterns {
@@ -766,17 +767,17 @@ func (root *Root) replaceDirRefs(dirs []*DirectiveUse) (err error) {
 	return
 }
 
-// type __Type {
-//   kind: __TypeKind!
-//   name: String
-//   description: String
-//   fields(includeDeprecated: Boolean = false): [__Field!]
-//   interfaces: [__Type!]
-//   possibleTypes: [__Type!]
-//   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
-//   inputFields: [__InputValue!]
-//   ofType: __Type
-// }.
+//	type __Type {
+//	  kind: __TypeKind!
+//	  name: String
+//	  description: String
+//	  fields(includeDeprecated: Boolean = false): [__Field!]
+//	  interfaces: [__Type!]
+//	  possibleTypes: [__Type!]
+//	  enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
+//	  inputFields: [__InputValue!]
+//	  ofType: __Type
+//	}.
 func (root *Root) newUuType(typeKind, strType Type) Type {
 	t := Object{
 		Base: Base{
@@ -810,13 +811,13 @@ func (root *Root) newUuType(typeKind, strType Type) Type {
 	return &t
 }
 
-// type __Schema {
-//   types: [__Type!]!
-//   queryType: __Type!
-//   mutationType: __Type
-//   subscriptionType: __Type
-//   directives: [__Directive!]!
-// }.
+//	type __Schema {
+//	  types: [__Type!]!
+//	  queryType: __Type!
+//	  mutationType: __Type
+//	  subscriptionType: __Type
+//	  directives: [__Directive!]!
+//	}.
 func (root *Root) newUuSchema(uuType, uuDir Type) Type {
 	root.uuSchemaType = &uuSchema{
 		root: root,
@@ -841,12 +842,12 @@ func (root *Root) newUuSchema(uuType, uuDir Type) Type {
 	return root.uuSchemaType
 }
 
-// type __InputValue {
-//   name: String!
-//   description: String
-//   type: __Type!
-//   defaultValue: String
-// }.
+//	type __InputValue {
+//	  name: String!
+//	  description: String
+//	  type: __Type!
+//	  defaultValue: String
+//	}.
 func (root *Root) newUuInputValue(uuType, strType Type) Type {
 	t := Object{
 		Base: Base{
@@ -863,14 +864,14 @@ func (root *Root) newUuInputValue(uuType, strType Type) Type {
 	return &t
 }
 
-// type __Field {
-//   name: String!
-//   description: String
-//   args: [__InputValue!]!
-//   type: __Type!
-//   isDeprecated: Boolean!
-//   deprecationReason: String
-// }.
+//	type __Field {
+//	  name: String!
+//	  description: String
+//	  args: [__InputValue!]!
+//	  type: __Type!
+//	  isDeprecated: Boolean!
+//	  deprecationReason: String
+//	}.
 func (root *Root) newUuField(uuType, inputValue, strType Type) Type {
 	t := Object{
 		Base: Base{
@@ -891,12 +892,12 @@ func (root *Root) newUuField(uuType, inputValue, strType Type) Type {
 	return &t
 }
 
-// type __EnumValue {
-//   name: String!
-//   description: String
-//   isDeprecated: Boolean!
-//   deprecationReason: String
-// }.
+//	type __EnumValue {
+//	  name: String!
+//	  description: String
+//	  isDeprecated: Boolean!
+//	  deprecationReason: String
+//	}.
 func (root *Root) newUuEnumValue(strType Type) Type {
 	t := Object{
 		Base: Base{
@@ -913,12 +914,12 @@ func (root *Root) newUuEnumValue(strType Type) Type {
 	return &t
 }
 
-// type __Directive {
-//   name: String!
-//   description: String
-//   locations: [__DirectiveLocation!]!
-//   args: [__InputValue!]!
-// }.
+//	type __Directive {
+//	  name: String!
+//	  description: String
+//	  locations: [__DirectiveLocation!]!
+//	  args: [__InputValue!]!
+//	}.
 func (root *Root) newUuDirective(inputValue, strType Type) Type {
 	t := Object{
 		Base: Base{

@@ -16,7 +16,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -26,7 +26,7 @@ import (
 func stubEnum(t *ggql.Enum) (err error) {
 	var b strings.Builder
 
-	b.WriteString(fmt.Sprintf("package %s\n\n", pkg))
+	fmt.Fprintf(&b, "package %s\n\n", pkg)
 	b.WriteString("const (\n")
 	for _, ev := range t.Values() {
 		name := t.Name() + string(ev.Value)
@@ -35,15 +35,15 @@ func stubEnum(t *ggql.Enum) (err error) {
 			desc = dotdotdot
 		}
 		if strings.HasPrefix(desc, name+" ") {
-			b.WriteString(fmt.Sprintf("\t// %s\n", strings.ReplaceAll(desc, "\n", "\n\t// ")))
+			fmt.Fprintf(&b, "\t// %s\n", strings.ReplaceAll(desc, "\n", "\n\t// "))
 		} else {
-			b.WriteString(fmt.Sprintf("\t// %s %s\n", name, strings.ReplaceAll(desc, "\n", "\n\t// ")))
+			fmt.Fprintf(&b, "\t// %s %s\n", name, strings.ReplaceAll(desc, "\n", "\n\t// "))
 		}
-		b.WriteString(fmt.Sprintf("\t%s = %q\n", name, string(ev.Value)))
+		fmt.Fprintf(&b, "\t%s = %q\n", name, string(ev.Value))
 	}
 	b.WriteString(")\n")
 
 	path := filepath.Join(stubDir, strings.ToLower(t.Name())+".go")
 
-	return ioutil.WriteFile(path, []byte(b.String()), 0600)
+	return os.WriteFile(path, []byte(b.String()), 0600)
 }

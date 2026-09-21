@@ -58,7 +58,7 @@ func (t *Schema) Extend(x Type) error {
 			}
 		}
 	}
-	return t.Object.Base.Extend(x)
+	return t.Base.Extend(x)
 }
 
 // Validate a type.

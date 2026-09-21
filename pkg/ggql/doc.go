@@ -35,7 +35,7 @@
 // is made for the Root Resolver. If no other resolvers match then the
 // Reflection Resolver function is attempted.
 //
-// Reflection Resolvers
+// # Reflection Resolvers
 //
 // The type binding approach uses reflection as needed but also caches
 // reflection objects when feasible.
@@ -56,7 +56,7 @@
 // An overview of using the reflection resolver can be found in this
 // [example](examples/reflection/README.md).
 //
-// Interface Resolvers
+// # Interface Resolvers
 //
 // In some cases it is preferable to have a more dynamic approach to
 // binding GraphQL types to resolvers. This approach relies on two
@@ -68,7 +68,7 @@
 // An overview of using the interface resolver can be found in this
 // [example](examples/interface/README.md).
 //
-// Root Resolver
+// # Root Resolver
 //
 // If the target does not implement the Resolver interface then the root
 // resolver can be used. Starting with the root object the resolve
@@ -76,16 +76,16 @@
 // provided key. As an example, if the data is a map[string]interface{}
 // then the resolver might simply look like this:
 //
-//   func Resolve(
-//       target interface{},
-//       field *Field,
-//       args map[string]interface{}) (interface{}, error) {
+//	func Resolve(
+//	    target interface{},
+//	    field *Field,
+//	    args map[string]interface{}) (interface{}, error) {
 //
-//       if m, _ := target.(map[string]interface{}); m != nil {
-//           return m[field.Name], nil
-//       }
-//       return nil, nil
-//   }
+//	    if m, _ := target.(map[string]interface{}); m != nil {
+//	        return m[field.Name], nil
+//	    }
+//	    return nil, nil
+//	}
 //
 // Of course the actual resolver might be much more complex if the data
 // must be retrieved from a database.
@@ -93,7 +93,7 @@
 // An overview of using the root resolver can be found in this
 // [example](examples/root/README.md).
 //
-// Subscriptions
+// # Subscriptions
 //
 // The GraphQL spec is intentionally vague on what the subscription
 // operation does and how it works. Since the GraphQL comes over a
@@ -105,5 +105,4 @@
 //
 // The package uses a pluggable API for hooking in a subscription
 // implementation.
-//
 package ggql

@@ -12,12 +12,20 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: stable
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v1.39
+          version: v2.13.2
+          # Built from source with the Go set up above: a release binary is
+          # built with an older Go and refuses a module targeting a newer one.
+          install-mode: goinstall
 
   test:
     strategy:
@@ -29,12 +37,12 @@ jobs:
 
     runs-on: ${{ matrix.os }}-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v6
       with:
-        go-version: 1.16
+        go-version: stable
 
     - name: Test
       run: |
@@ -43,8 +51,7 @@ jobs:
 
     - name: Coverage
       env:
-        GO111MODULE: off
         COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        go get github.com/mattn/goveralls
+        go install github.com/mattn/goveralls@latest
         goveralls -coverprofile=cov.out -service=github

@@ -134,7 +134,7 @@ func writeValue(w io.Writer, v interface{}, sdl bool, depth, indent int) (err er
 				_, err = w.Write([]byte{'"'})
 			}
 		default:
-			_, err = w.Write([]byte(fmt.Sprintf(`"%v"`, v)))
+			_, err = fmt.Fprintf(w, `"%v"`, v)
 		}
 	}
 	return

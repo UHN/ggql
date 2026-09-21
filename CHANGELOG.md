@@ -3,6 +3,20 @@
 Changes to the GraphQL package are listed here. Releases follow semantic
 versioning.
 
+## [Unreleased]
+
+### Added
+- Enum values sent as strings in variables are accepted, and validated against
+  the enum's members. JSON has no enum type, so a client of the JSON HTTP
+  interface transports an enum value as a string; a string written into a
+  document as a literal is still refused, as the specification requires.
+
+### Changed
+- The package requires Go 1.27, and the CI runs on supported Go and linter
+  versions. Deprecated standard library use was replaced: `io/ioutil` by `io`
+  and `os`, `reflect.Ptr` by `reflect.Pointer`, and `strings.Title` by
+  capitalizing a name's first letter.
+
 ## [1.2.14] - 2022-03-27
 
 ### Added
