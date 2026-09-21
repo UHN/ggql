@@ -22,7 +22,10 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.13
+          version: v2.13.2
+          # Built from source with the Go set up above: a release binary is
+          # built with an older Go and refuses a module targeting a newer one.
+          install-mode: goinstall
 
   test:
     strategy:

@@ -12,7 +12,7 @@ versioning.
   document as a literal is still refused, as the specification requires.
 
 ### Changed
-- The package requires Go 1.24, and the CI runs on supported Go and linter
+- The package requires Go 1.27, and the CI runs on supported Go and linter
   versions. Deprecated standard library use was replaced: `io/ioutil` by `io`
   and `os`, `reflect.Ptr` by `reflect.Pointer`, and `strings.Title` by
   capitalizing a name's first letter.
